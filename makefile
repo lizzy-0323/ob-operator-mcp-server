@@ -3,4 +3,4 @@
 all: build
 
 build:
-	go build -o okctl-mcp-server ./cmd/main.go
+	go build -o ./bin/okctl-mcp-server ./cmd/main.go

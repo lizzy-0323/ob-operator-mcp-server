@@ -1,6 +1,8 @@
 package toolsets
 
 import (
+	"fmt"
+
 	"github.com/mark3labs/mcp-go/mcp"
 	"github.com/mark3labs/mcp-go/server"
 )
@@ -8,15 +10,16 @@ import (
 type ToolSet struct {
 	Name        string
 	Description string
-	Enable      bool
+	Enabled     bool
 	ReadOnly    bool
 	writeTools  []server.ServerTool
 	readTools   []server.ServerTool
 }
 
 type ToolSetsGroup struct {
-	ToolSets map[string]*ToolSet
-	readOnly bool
+	ToolSets     map[string]*ToolSet
+	readOnly     bool
+	everythingOn bool
 }
 
 func NewServerTool(tool mcp.Tool, handler server.ToolHandlerFunc) server.ServerTool {
@@ -25,6 +28,7 @@ func NewServerTool(tool mcp.Tool, handler server.ToolHandlerFunc) server.ServerT
 		Handler: handler,
 	}
 }
+
 func NewToolSetGroup() *ToolSetsGroup {
 	return &ToolSetsGroup{
 		ToolSets: make(map[string]*ToolSet),
@@ -36,12 +40,15 @@ func NewToolSet(name string, description string) *ToolSet {
 	return &ToolSet{
 		Name:        name,
 		Description: description,
-		Enable:      false,
+		Enabled:     true,
+		ReadOnly:    false,
 	}
 }
 
 func (ts *ToolSet) AddWriteTools(tools ...server.ServerTool) *ToolSet {
-	ts.writeTools = append(ts.writeTools, tools...)
+	if !ts.ReadOnly {
+		ts.writeTools = append(ts.writeTools, tools...)
+	}
 	return ts
 }
 
@@ -67,7 +74,57 @@ func (tsg *ToolSetsGroup) RegisterTools(s *server.MCPServer) {
 	}
 }
 
+func (tsg *ToolSetsGroup) IsEnabled(name string) bool {
+	if tsg.everythingOn {
+		return true
+	}
+
+	ts, exists := tsg.ToolSets[name]
+	if !exists {
+		return false
+	}
+	return ts.Enabled
+}
+
+func (tsg *ToolSetsGroup) EnableToolSets(names []string) error {
+	// Special case for "all"
+	for _, name := range names {
+		if name == "all" {
+			tsg.everythingOn = true
+			break
+		}
+		err := tsg.EnableToolset(name)
+		if err != nil {
+			return err
+		}
+	}
+	// Do this after to ensure all toolsets are enabled if "all" is present anywhere in list
+	if tsg.everythingOn {
+		for name := range tsg.ToolSets {
+			err := tsg.EnableToolset(name)
+			if err != nil {
+				return err
+			}
+		}
+		return nil
+	}
+	return nil
+}
+
+func (tsg *ToolSetsGroup) EnableToolset(name string) error {
+	ts, exists := tsg.ToolSets[name]
+	if !exists {
+		return fmt.Errorf("toolset %s does not exist", name)
+	}
+	ts.Enabled = true
+	tsg.ToolSets[name] = ts
+	return nil
+}
+
 func (ts *ToolSet) RegisterTools(s *server.MCPServer) {
+	if !ts.Enabled {
+		return
+	}
 	for _, tools := range ts.readTools {
 		s.AddTool(tools.Tool, tools.Handler)
 	}
