@@ -29,9 +29,9 @@ jobs:
           python -m pip install --upgrade pip
           pip install uv
           uv sync
-          uv pip install .[dev]
 
       - name: Code style check
         run: |
+          uv pip install .[dev]
           ruff check . 
           ruff format . --check
