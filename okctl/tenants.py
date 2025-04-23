@@ -1,15 +1,15 @@
 import subprocess
-from typing import Optional, Dict, Any
+from typing import Optional
 
 # 导入mcp实例
 from okctl import mcp
 
-# 租户相关的工具
 
+# 租户相关的工具
 @mcp.tool()
-def list_tenants( namespace: str = "default"):
+def list_tenants(namespace: str = "default"):
     """列表租户相关的工具
-    
+
     Args:
         namespace: 命名空间（默认为"default"）
     """
@@ -22,6 +22,7 @@ def list_tenants( namespace: str = "default"):
         return output
     except subprocess.CalledProcessError as e:
         return f"执行命令失败: {e}"
+
 
 @mcp.tool()
 def create_tenant(
@@ -52,7 +53,7 @@ def create_tenant(
     until_timestamp: Optional[str] = None,
 ):
     """创建租户
-    
+
     Args:
         tenant_name: 租户名称
         cluster: 租户所在集群名称（必需）
@@ -82,7 +83,7 @@ def create_tenant(
     """
     try:
         cmd = f"okctl tenant create {tenant_name} --cluster={cluster} -n {namespace}"
-        
+
         # 添加可选参数
         if archive_source:
             cmd += f" --archive-source {archive_source}"
@@ -128,16 +129,17 @@ def create_tenant(
             cmd += f" --unlimited={str(unlimited).lower()}"
         if until_timestamp:
             cmd += f" --until-timestamp {until_timestamp}"
-        
+
         result = subprocess.run(["sh", "-c", cmd], capture_output=True, text=True, check=True)
         return result.stdout
     except subprocess.CalledProcessError as e:
         return f"执行命令失败: {e}"
 
+
 @mcp.tool()
 def delete_tenant(tenant_name: str, namespace: str = "default"):
     """删除指定租户
-    
+
     Args:
         tenant_name: 租户名称
         namespace: 命名空间（默认为"default"）
@@ -149,10 +151,11 @@ def delete_tenant(tenant_name: str, namespace: str = "default"):
     except subprocess.CalledProcessError as e:
         return f"执行命令失败: {e}"
 
+
 @mcp.tool()
 def activate_tenant(standby_tenant_name: str, namespace: str = "default", force: bool = False):
     """激活备用租户
-    
+
     Args:
         standby_tenant_name: 备用租户名称
         namespace: 命名空间（默认为"default"）
@@ -167,10 +170,11 @@ def activate_tenant(standby_tenant_name: str, namespace: str = "default", force:
     except subprocess.CalledProcessError as e:
         return f"执行命令失败: {e}"
 
+
 @mcp.tool()
 def change_tenant_password(tenant_name: str, password: str, namespace: str = "default", force: bool = False):
     """修改租户密码
-    
+
     Args:
         tenant_name: 租户名称
         password: 租户的新密码（必需）
@@ -186,10 +190,17 @@ def change_tenant_password(tenant_name: str, password: str, namespace: str = "de
     except subprocess.CalledProcessError as e:
         return f"执行命令失败: {e}"
 
+
 @mcp.tool()
-def replay_tenant_log(tenant_name: str, namespace: str = "default", force: bool = False, unlimited: bool = True, until_timestamp: Optional[str] = None):
+def replay_tenant_log(
+    tenant_name: str,
+    namespace: str = "default",
+    force: bool = False,
+    unlimited: bool = True,
+    until_timestamp: Optional[str] = None,
+):
     """回放租户日志
-    
+
     Args:
         tenant_name: 租户名称
         namespace: 命名空间（默认为"default"）
@@ -199,19 +210,20 @@ def replay_tenant_log(tenant_name: str, namespace: str = "default", force: bool 
     """
     try:
         cmd = f"okctl tenant replaylog {tenant_name} -n {namespace}"
-        
+
         # 添加可选参数
         if force:
             cmd += " -f"
         if unlimited is not None:
             cmd += f" --unlimited={str(unlimited).lower()}"
         if until_timestamp:
-            cmd += f" --until-timestamp \"{until_timestamp}\""
-        
+            cmd += f' --until-timestamp "{until_timestamp}"'
+
         result = subprocess.run(["sh", "-c", cmd], capture_output=True, text=True, check=True)
         return result.stdout
     except subprocess.CalledProcessError as e:
         return f"执行命令失败: {e}"
+
 
 @mcp.tool()
 def scale_tenant(
@@ -227,7 +239,7 @@ def scale_tenant(
     unit_number: Optional[int] = None,
 ):
     """扩缩租户资源
-    
+
     Args:
         tenant_name: 租户名称
         namespace: 命名空间（默认为"default"）
@@ -242,7 +254,7 @@ def scale_tenant(
     """
     try:
         cmd = f"okctl tenant scale {tenant_name} -n {namespace}"
-        
+
         # 添加可选参数
         if cpu_count:
             cmd += f" --cpu-count {cpu_count}"
@@ -260,16 +272,17 @@ def scale_tenant(
             cmd += f" --min-iops {min_iops}"
         if unit_number is not None:
             cmd += f" --unit-number {unit_number}"
-        
+
         result = subprocess.run(["sh", "-c", cmd], capture_output=True, text=True, check=True)
         return result.stdout
     except subprocess.CalledProcessError as e:
         return f"执行命令失败: {e}"
 
+
 @mcp.tool()
 def show_tenant(tenant_name: str, namespace: str = "default"):
     """显示租户信息
-    
+
     Args:
         tenant_name: 租户名称
         namespace: 命名空间（默认为"default"）
@@ -281,10 +294,13 @@ def show_tenant(tenant_name: str, namespace: str = "default"):
     except subprocess.CalledProcessError as e:
         return f"执行命令失败: {e}"
 
+
 @mcp.tool()
-def switchover_tenant(primary_tenant_name: str, standby_tenant_name: str, namespace: str = "default", force: bool = False):
+def switchover_tenant(
+    primary_tenant_name: str, standby_tenant_name: str, namespace: str = "default", force: bool = False
+):
     """切换主备租户
-    
+
     Args:
         primary_tenant_name: 主租户名称
         standby_tenant_name: 备租户名称
@@ -300,10 +316,17 @@ def switchover_tenant(primary_tenant_name: str, standby_tenant_name: str, namesp
     except subprocess.CalledProcessError as e:
         return f"执行命令失败: {e}"
 
+
 @mcp.tool()
-def update_tenant(tenant_name: str, namespace: str = "default", connect_white_list: Optional[str] = None, force: bool = False, priority: Optional[str] = None):
+def update_tenant(
+    tenant_name: str,
+    namespace: str = "default",
+    connect_white_list: Optional[str] = None,
+    force: bool = False,
+    priority: Optional[str] = None,
+):
     """更新租户信息
-    
+
     Args:
         tenant_name: 租户名称
         namespace: 命名空间（默认为"default"）
@@ -313,7 +336,7 @@ def update_tenant(tenant_name: str, namespace: str = "default", connect_white_li
     """
     try:
         cmd = f"okctl tenant update {tenant_name} -n {namespace}"
-        
+
         # 添加可选参数
         if connect_white_list:
             cmd += f" --connect-white-list {connect_white_list}"
@@ -321,16 +344,17 @@ def update_tenant(tenant_name: str, namespace: str = "default", connect_white_li
             cmd += " -f"
         if priority:
             cmd += f" --priority {priority}"
-        
+
         result = subprocess.run(["sh", "-c", cmd], capture_output=True, text=True, check=True)
         return result.stdout
     except subprocess.CalledProcessError as e:
         return f"执行命令失败: {e}"
 
+
 @mcp.tool()
 def upgrade_tenant(tenant_name: str, namespace: str = "default", force: bool = False):
     """升级租户
-    
+
     Args:
         tenant_name: 租户名称
         namespace: 命名空间（默认为"default"）

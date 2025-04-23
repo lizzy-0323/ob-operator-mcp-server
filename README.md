@@ -1,71 +1,73 @@
-# OceanBase Kubernetes 控制工具 (okctl) MCP 服务器
+# OceanBase Kubernetes Control Tool (okctl) MCP Server
 
-## 项目简介
+English | [简体中文](README-CN.md)
 
-本项目是 OceanBase Kubernetes 控制工具 (okctl) 的 MCP 服务器实现，提供了一系列工具函数，用于管理 OceanBase 集群、租户和备份策略等。这些函数通过调用底层的 okctl 命令行工具来实现各种管理操作，并通过 MCP 协议将这些功能暴露给客户端。
+## Project Overview
 
-## 功能模块
+This project is the MCP server implementation for the OceanBase Kubernetes Control Tool ([okctl](https://github.com/oceanbase/ob-operator?tab=readme-ov-file#using-cli-tool-okctl)). It provides a suite of utility functions for managing OceanBase clusters, tenants, and backup policies. These functions work by invoking the underlying okctl command-line tool to perform various management operations and expose these capabilities to clients through the MCP protocol.
 
-本项目包含以下主要 tools：
+## Function Modules
 
-### 1. 集群管理 (clusters.py)
+The project includes the following main tools:
 
-提供了创建、删除、查看、扩缩容、更新和升级 OceanBase 集群的功能。
+### 1. Cluster Management (clusters.py)
 
-- `list_all_clusters()` - 列出所有 OceanBase 集群
-- `show_cluster()` - 显示指定集群的详细信息
-- `create_cluster()` - 创建新的 OceanBase 集群
-- `delete_cluster()` - 删除指定的 OceanBase 集群
-- `scale_cluster()` - 扩缩 OceanBase 集群
-- `update_cluster()` - 更新 OceanBase 集群配置
-- `upgrade_cluster()` - 升级 OceanBase 集群版本
+Provides functionality for creating, deleting, viewing, scaling, updating, and upgrading OceanBase clusters.
 
-### 2. 租户管理 (tenants.py)
+- `list_all_clusters()` - List all OceanBase clusters
+- `show_cluster()` - Display detailed information about a specific cluster
+- `create_cluster()` - Create a new OceanBase cluster
+- `delete_cluster()` - Delete a specified OceanBase cluster
+- `scale_cluster()` - Scale an OceanBase cluster
+- `update_cluster()` - Update OceanBase cluster configuration
+- `upgrade_cluster()` - Upgrade OceanBase cluster version
 
-提供了创建、删除、查看、扩缩容、更新和管理 OceanBase 租户的功能。
+### 2. Tenant Management (tenants.py)
 
-- `list_tenants()` - 列出所有租户
-- `create_tenant()` - 创建新的租户
-- `delete_tenant()` - 删除指定的租户
-- `show_tenant()` - 显示租户详细信息
-- `scale_tenant()` - 扩缩租户资源
-- `update_tenant()` - 更新租户配置
-- `upgrade_tenant()` - 升级租户版本
-- `change_tenant_password()` - 修改租户密码
-- `activate_tenant()` - 激活备用租户
-- `replay_tenant_log()` - 回放租户日志
-- `switchover_tenant()` - 切换主备租户
+Provides functionality for creating, deleting, viewing, scaling, updating, and managing OceanBase tenants.
 
-### 3. 备份策略管理 (backup_policy.py)
+- `list_tenants()` - List all tenants
+- `create_tenant()` - Create a new tenant
+- `delete_tenant()` - Delete a specified tenant
+- `show_tenant()` - Display tenant details
+- `scale_tenant()` - Scale tenant resources
+- `update_tenant()` - Update tenant configuration
+- `upgrade_tenant()` - Upgrade tenant version
+- `change_tenant_password()` - Modify tenant password
+- `activate_tenant()` - Activate standby tenant
+- `replay_tenant_log()` - Replay tenant logs
+- `switchover_tenant()` - Switch between primary and standby tenants
 
-提供了创建、删除、查看、更新和管理 OceanBase 备份策略的功能。
+### 3. Backup Policy Management (backup_policy.py)
 
-- `list_backup_policies()` - 列出所有备份策略
-- `create_backup_policy()` - 创建新的备份策略
-- `delete_backup_policy()` - 删除指定的备份策略
-- `show_backup_policy()` - 显示备份策略详细信息
-- `update_backup_policy()` - 更新备份策略
-- `pause_backup_policy()` - 暂停备份策略
-- `resume_backup_policy()` - 恢复备份策略
+Provides functionality for creating, deleting, viewing, updating, and managing OceanBase backup policies.
 
-### 4. 组件管理 (components.py)
+- `list_backup_policies()` - List all backup policies
+- `create_backup_policy()` - Create a new backup policy
+- `delete_backup_policy()` - Delete a specified backup policy
+- `show_backup_policy()` - Display backup policy details
+- `update_backup_policy()` - Update backup policy
+- `pause_backup_policy()` - Pause backup policy
+- `resume_backup_policy()` - Resume backup policy
 
-提供了安装、更新和管理 OceanBase 组件的功能。
+### 4. Component Management (components.py)
 
-- `list_components()` - 列出所有已安装的组件
-- `install_component()` - 安装新的组件
-- `update_component()` - 更新组件
+Provides functionality for installing, updating, and managing OceanBase components.
 
-## 开发环境配置
+- `list_components()` - List all installed components
+- `install_component()` - Install a new component
+- `update_component()` - Update component
 
-### 前提条件
+## Development Environment Setup
 
-- 已安装 Python 3.10 或更高版本
-- 已安装 uv 包管理工具（[uv 官方文档](https://github.com/astral-sh/uv)）
-- 已安装并配置 OceanBase Kubernetes 控制工具 (okctl)
-- 已配置 Kubernetes 环境，并有权限访问 OceanBase 集群
+### Prerequisites
 
-### 配置 MCP 服务器
+- Python 3.10 or higher installed
+- uv package manager installed ([uv documentation](https://github.com/astral-sh/uv))
+- OceanBase Kubernetes Control Tool (okctl) installed and configured
+- Kubernetes environment configured with appropriate access to OceanBase clusters
+
+### Configuring the MCP Server
 
 ```json
 {
@@ -78,18 +80,18 @@
 }
 ```
 
-## 注意事项
+## Important Notes
 
-- 服务器需要在能够访问 Kubernetes 集群的环境中运行
-- 所有函数都是通过调用底层的 okctl 命令行工具来实现的，因此需要确保 okctl 已正确安装并配置
-- 大多数函数都提供了 namespace 参数，默认值为 "default"，可以根据需要指定不同的命名空间
-- 部分操作（如删除集群、删除租户等）可能是不可逆的，请谨慎操作
-- 建议在执行重要操作前先进行备份
+- The server must run in an environment with access to the Kubernetes cluster
+- All functions are implemented by calling the underlying okctl command-line tool, so ensure okctl is properly installed and configured
+- Most functions provide a namespace parameter with a default value of "default", which can be specified as needed
+- Some operations (such as deleting clusters or tenants) may be irreversible, so proceed with caution
+- It's recommended to perform backups before executing critical operations
 
-## 贡献
+## Contributing
 
-欢迎提交 Issues 和 Pull Requests 来改进这个项目。
+Issues and Pull Requests are welcome to improve this project.
 
-## 许可证
+## License
 
-本项目采用 [Apache 2.0 许可证](LICENSE)。
+This project is licensed under the [Apache 2.0 License](LICENSE).

@@ -1,12 +1,11 @@
 import subprocess
-from typing import Optional, Dict, Any
+from typing import Optional
 
 # 导入mcp实例
 from okctl import mcp
 
+
 # 组件安装和更新相关的工具
-
-
 @mcp.tool()
 def install_component(
     component_name: str,
@@ -25,9 +24,7 @@ def install_component(
         if version:
             cmd += f" --version {version}"
 
-        result = subprocess.run(
-            ["sh", "-c", cmd], capture_output=True, text=True, check=True
-        )
+        result = subprocess.run(["sh", "-c", cmd], capture_output=True, text=True, check=True)
         return result.stdout
     except subprocess.CalledProcessError as e:
         return f"执行命令失败: {e}"
@@ -45,9 +42,7 @@ def update_component(
     try:
         cmd = f"okctl update {component_name}"
 
-        result = subprocess.run(
-            ["sh", "-c", cmd], capture_output=True, text=True, check=True
-        )
+        result = subprocess.run(["sh", "-c", cmd], capture_output=True, text=True, check=True)
         return result.stdout
     except subprocess.CalledProcessError as e:
         return f"执行命令失败: {e}"
@@ -58,9 +53,7 @@ def install_okctl():
     """安装okctl"""
     try:
         cmd = "curl -sL https://raw.githubusercontent.com/oceanbase/ob-operator/master/scripts/install-okctl.sh | bash && sudo mv ./okctl /usr/local/bin/okctl "
-        result = subprocess.run(
-            ["sh", "-c", cmd], capture_output=True, text=True, check=True
-        )
+        result = subprocess.run(["sh", "-c", cmd], capture_output=True, text=True, check=True)
         return result.stdout
     except subprocess.CalledProcessError as e:
         return f"执行命令失败: {e}"
