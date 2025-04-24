@@ -12,12 +12,20 @@ def install_component(
     component_name: str,
     version: Optional[str] = None,
 ):
-    """安装OceanBase组件
+    """安装OceanBase组件, 目前支持ob-operator，ob-dashboard, local-path-provisioner,cert-manager,不支持其他组件，
+    如果未指定，默认将安装ob-operator和 ob-dashboard
 
     Args:
         component_name: 组件名称
         version: 组件版本
     """
+    if component_name and component_name not in [
+        "ob-operator",
+        "ob-dashboard",
+        "local-path-provisioner",
+        "cert-manager",
+    ]:
+        return f"不支持安装{component_name}组件"
     try:
         cmd = f"okctl install {component_name}"
 
@@ -37,11 +45,19 @@ def install_component(
 def update_component(
     component_name: str,
 ):
-    """更新OceanBase组件
+    """更新OceanBase组件, 目前支持ob-operator，ob-dashboard, local-path-provisioner,cert-manager,不支持其他组件，
+    如果未指定，默认将更新ob-operator和 ob-dashboard
 
     Args:
         component_name: 组件名称
     """
+    if component_name and component_name not in [
+        "ob-operator",
+        "ob-dashboard",
+        "local-path-provisioner",
+        "cert-manager",
+    ]:
+        return f"不支持更新{component_name}组件"
     try:
         cmd = f"okctl update {component_name}"
 
