@@ -1,5 +1,5 @@
 import subprocess
-from typing import Optional, Dict, Any
+from typing import Optional
 
 # 导入mcp实例
 from okctl import mcp

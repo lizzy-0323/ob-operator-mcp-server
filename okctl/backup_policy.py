@@ -1,28 +1,32 @@
 import subprocess
-from typing import Optional, Dict, Any
+from typing import Optional
 
 # 导入mcp实例
 from okctl import mcp
 
 # 备份策略相关的工具
 
+
 @mcp.tool()
 def list_backup_policies(cluster_name: str, namespace: str = "default"):
     """列出指定集群中的所有备份策略
-    
+
     Args:
         cluster_name: 集群名称
         namespace: 命名空间（默认为"default"）
     """
     try:
         cmd = f"okctl backup-policy list {cluster_name} -n {namespace}"
-        result = subprocess.run(["sh", "-c", cmd], capture_output=True, text=True, check=True)
+        result = subprocess.run(
+            ["sh", "-c", cmd], capture_output=True, text=True, check=True
+        )
         output = result.stdout
         if not output.strip():
             return "没有找到备份策略"
         return output
     except subprocess.CalledProcessError as e:
         return f"执行命令失败: {e}"
+
 
 @mcp.tool()
 def create_backup_policy(
@@ -40,7 +44,7 @@ def create_backup_policy(
     recovery_days: Optional[int] = None,
 ):
     """在指定集群中创建备份策略
-    
+
     Args:
         tenant_name: 租户名称
         namespace: 命名空间（默认为"default"）
@@ -57,7 +61,7 @@ def create_backup_policy(
     """
     try:
         cmd = f"okctl backup-policy create {tenant_name} -n {namespace}"
-        
+
         # 添加可选参数
         if archive_path:
             cmd += f" --archive-path {archive_path}"
@@ -79,16 +83,21 @@ def create_backup_policy(
             cmd += f" --oss-access-key {oss_access_key}"
         if recovery_days is not None:
             cmd += f" --recovery-days {recovery_days}"
-        
-        result = subprocess.run(["sh", "-c", cmd], capture_output=True, text=True, check=True)
+
+        result = subprocess.run(
+            ["sh", "-c", cmd], capture_output=True, text=True, check=True
+        )
         return result.stdout
     except subprocess.CalledProcessError as e:
         return f"执行命令失败: {e}"
 
+
 @mcp.tool()
-def delete_backup_policy(tenant_name: str, namespace: str = "default", force: bool = False):
+def delete_backup_policy(
+    tenant_name: str, namespace: str = "default", force: bool = False
+):
     """删除指定租户的备份策略
-    
+
     Args:
         tenant_name: 租户名称
         namespace: 命名空间（默认为"default"）
@@ -98,15 +107,23 @@ def delete_backup_policy(tenant_name: str, namespace: str = "default", force: bo
         cmd = f"okctl backup-policy delete {tenant_name} -n {namespace}"
         if force:
             cmd += " -f"
-        result = subprocess.run(["sh", "-c", cmd], capture_output=True, text=True, check=True)
+        result = subprocess.run(
+            ["sh", "-c", cmd], capture_output=True, text=True, check=True
+        )
         return result.stdout
     except subprocess.CalledProcessError as e:
         return f"执行命令失败: {e}"
 
+
 @mcp.tool()
-def show_backup_policy(tenant_name: str, namespace: str = "default", job_type: str = "ALL", limit: Optional[int] = None):
+def show_backup_policy(
+    tenant_name: str,
+    namespace: str = "default",
+    job_type: str = "ALL",
+    limit: Optional[int] = None,
+):
     """查看指定租户的备份策略
-    
+
     Args:
         tenant_name: 租户名称
         namespace: 命名空间（默认为"default"）
@@ -115,47 +132,56 @@ def show_backup_policy(tenant_name: str, namespace: str = "default", job_type: s
     """
     try:
         cmd = f"okctl backup-policy show {tenant_name} -n {namespace}"
-        
+
         # 添加可选参数
         if job_type and job_type != "ALL":
             cmd += f" -t {job_type}"
         if limit is not None:
             cmd += f" --limit {limit}"
-        
-        result = subprocess.run(["sh", "-c", cmd], capture_output=True, text=True, check=True)
+
+        result = subprocess.run(
+            ["sh", "-c", cmd], capture_output=True, text=True, check=True
+        )
         return result.stdout
     except subprocess.CalledProcessError as e:
         return f"执行命令失败: {e}"
 
+
 @mcp.tool()
 def pause_backup_policy(tenant_name: str, namespace: str = "default"):
     """暂停指定租户的备份策略
-    
+
     Args:
         tenant_name: 租户名称
         namespace: 命名空间（默认为"default"）
     """
     try:
         cmd = f"okctl backup-policy pause {tenant_name} -n {namespace}"
-        result = subprocess.run(["sh", "-c", cmd], capture_output=True, text=True, check=True)
+        result = subprocess.run(
+            ["sh", "-c", cmd], capture_output=True, text=True, check=True
+        )
         return result.stdout
     except subprocess.CalledProcessError as e:
         return f"执行命令失败: {e}"
 
+
 @mcp.tool()
 def resume_backup_policy(tenant_name: str, namespace: str = "default"):
     """恢复指定租户的备份策略
-    
+
     Args:
         tenant_name: 租户名称
         namespace: 命名空间（默认为"default"）
     """
     try:
         cmd = f"okctl backup-policy resume {tenant_name} -n {namespace}"
-        result = subprocess.run(["sh", "-c", cmd], capture_output=True, text=True, check=True)
+        result = subprocess.run(
+            ["sh", "-c", cmd], capture_output=True, text=True, check=True
+        )
         return result.stdout
     except subprocess.CalledProcessError as e:
         return f"执行命令失败: {e}"
+
 
 @mcp.tool()
 def update_backup_policy(
@@ -168,7 +194,7 @@ def update_backup_policy(
     recovery_days: Optional[int] = None,
 ):
     """更新指定租户的备份策略
-    
+
     Args:
         tenant_name: 租户名称
         namespace: 命名空间（默认为"default"）
@@ -180,7 +206,7 @@ def update_backup_policy(
     """
     try:
         cmd = f"okctl backup-policy update {tenant_name} -n {namespace}"
-        
+
         # 添加可选参数
         if full:
             cmd += f" --full {full}"
@@ -192,8 +218,10 @@ def update_backup_policy(
             cmd += f" --piece-interval-days {piece_interval_days}"
         if recovery_days is not None:
             cmd += f" --recovery-days {recovery_days}"
-        
-        result = subprocess.run(["sh", "-c", cmd], capture_output=True, text=True, check=True)
+
+        result = subprocess.run(
+            ["sh", "-c", cmd], capture_output=True, text=True, check=True
+        )
         return result.stdout
     except subprocess.CalledProcessError as e:
         return f"执行命令失败: {e}"

@@ -1,16 +1,22 @@
 import subprocess
-from typing import Optional, Dict, Any
+from typing import Optional
 
 # 导入mcp实例
 from okctl import mcp
 
 # 集群相关的工具
 
+
 @mcp.tool()
 def list_all_clusters():
     """列出所有的OceanBase集群"""
     try:
-        result = subprocess.run(["sh", "-c", "okctl cluster list"], capture_output=True, text=True, check=True)
+        result = subprocess.run(
+            ["sh", "-c", "okctl cluster list"],
+            capture_output=True,
+            text=True,
+            check=True,
+        )
         output = result.stdout
         if not output.strip():
             return "没有找到集群"
@@ -18,25 +24,29 @@ def list_all_clusters():
     except subprocess.CalledProcessError as e:
         return f"执行命令失败: {e}"
 
+
 @mcp.tool()
 def show_cluster(cluster_name: str, namespace: str = "default"):
     """显示指定OceanBase集群的概览
-    
+
     Args:
         cluster_name: 要显示的集群名称
         namespace: 集群所在的命名空间（默认为"default"）
     """
     try:
         cmd = f"okctl cluster show {cluster_name} -n {namespace}"
-        result = subprocess.run(["sh", "-c", cmd], capture_output=True, text=True, check=True)
+        result = subprocess.run(
+            ["sh", "-c", cmd], capture_output=True, text=True, check=True
+        )
         return result.stdout
     except subprocess.CalledProcessError as e:
         return f"执行命令失败: {e}"
 
+
 @mcp.tool()
 def scale_cluster(cluster_name: str, zones: str, namespace: str = "default"):
     """扩缩OceanBase集群，支持添加/调整/删除可用区
-    
+
     Args:
         cluster_name: 要扩缩的集群名称
         zones: 集群的可用区，例如 'z1=1'，设置副本数为0以删除可用区
@@ -44,10 +54,13 @@ def scale_cluster(cluster_name: str, zones: str, namespace: str = "default"):
     """
     try:
         cmd = f"okctl cluster scale {cluster_name} -n {namespace} --zones={zones}"
-        result = subprocess.run(["sh", "-c", cmd], capture_output=True, text=True, check=True)
+        result = subprocess.run(
+            ["sh", "-c", cmd], capture_output=True, text=True, check=True
+        )
         return result.stdout
     except subprocess.CalledProcessError as e:
         return f"执行命令失败: {e}"
+
 
 @mcp.tool()
 def update_cluster(
@@ -63,7 +76,7 @@ def update_cluster(
     redo_log_storage_size: Optional[str] = None,
 ):
     """更新OceanBase集群，支持CPU/内存/存储的调整
-    
+
     Args:
         cluster_name: 要更新的集群名称
         namespace: 集群所在的命名空间（默认为"default"）
@@ -78,7 +91,7 @@ def update_cluster(
     """
     try:
         cmd = f"okctl cluster update {cluster_name} -n {namespace}"
-        
+
         # 添加可选参数
         if cpu:
             cmd += f" --cpu {cpu}"
@@ -96,16 +109,19 @@ def update_cluster(
             cmd += f" --redo-log-storage-class {redo_log_storage_class}"
         if redo_log_storage_size:
             cmd += f" --redo-log-storage-size {redo_log_storage_size}"
-        
-        result = subprocess.run(["sh", "-c", cmd], capture_output=True, text=True, check=True)
+
+        result = subprocess.run(
+            ["sh", "-c", cmd], capture_output=True, text=True, check=True
+        )
         return result.stdout
     except subprocess.CalledProcessError as e:
         return f"执行命令失败: {e}"
 
+
 @mcp.tool()
 def upgrade_cluster(cluster_name: str, image: str, namespace: str = "default"):
     """升级OceanBase集群，请指定新的镜像
-    
+
     Args:
         cluster_name: 要升级的集群名称
         image: 观察者的镜像
@@ -113,25 +129,31 @@ def upgrade_cluster(cluster_name: str, image: str, namespace: str = "default"):
     """
     try:
         cmd = f"okctl cluster upgrade {cluster_name} -n {namespace} --image {image}"
-        result = subprocess.run(["sh", "-c", cmd], capture_output=True, text=True, check=True)
+        result = subprocess.run(
+            ["sh", "-c", cmd], capture_output=True, text=True, check=True
+        )
         return result.stdout
     except subprocess.CalledProcessError as e:
         return f"执行命令失败: {e}"
 
+
 @mcp.tool()
 def delete_cluster(cluster_name: str, namespace: str = "default"):
     """删除指定命名空间中的OceanBase集群
-    
+
     Args:
         cluster_name: 要删除的集群名称
         namespace: 要从中删除集群的命名空间
     """
     try:
         cmd = f"okctl cluster delete {cluster_name} -n {namespace}"
-        result = subprocess.run(["sh", "-c", cmd], capture_output=True, text=True, check=True)
+        result = subprocess.run(
+            ["sh", "-c", cmd], capture_output=True, text=True, check=True
+        )
         return result.stdout
     except subprocess.CalledProcessError as e:
         return f"执行命令失败: {e}"
+
 
 @mcp.tool()
 def create_cluster(
@@ -155,7 +177,7 @@ def create_cluster(
     zones: Optional[str] = None,
 ):
     """在指定命名空间中创建新的OceanBase集群
-    
+
     Args:
         cluster_name: 要创建的集群名称
         namespace: 要在其中创建集群的命名空间（默认为"default"）
@@ -178,7 +200,7 @@ def create_cluster(
     """
     try:
         cmd = f"okctl cluster create {cluster_name} -n {namespace}"
-        
+
         # 添加可选参数
         if backup_storage_address:
             cmd += f" --backup-storage-address {backup_storage_address}"
@@ -212,8 +234,10 @@ def create_cluster(
             cmd += f" --root-password {root_password}"
         if zones:
             cmd += f" --zones {zones}"
-        
-        result = subprocess.run(["sh", "-c", cmd], capture_output=True, text=True, check=True)
+
+        result = subprocess.run(
+            ["sh", "-c", cmd], capture_output=True, text=True, check=True
+        )
         return result.stdout
     except subprocess.CalledProcessError as e:
         return f"执行命令失败: {e}"
