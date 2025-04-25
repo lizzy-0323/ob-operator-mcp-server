@@ -9,7 +9,7 @@ from okctl import mcp
 
 @mcp.tool()
 def list_tenants(namespace: str = "default"):
-    """列表租户相关的工具
+    """列举租户
 
     Args:
         namespace: 命名空间（默认为"default"）
@@ -84,6 +84,10 @@ def create_tenant(
         unlimited: 是否不限制时间，默认为True
         until_timestamp: 租户的截止时间
     """
+    if not cluster:
+        return "必须指定集群名称"
+    if not tenant_name:
+        return "必须指定租户名称"
     try:
         cmd = f"okctl tenant create {tenant_name} --cluster={cluster} -n {namespace}"
 
@@ -194,6 +198,8 @@ def change_tenant_password(
         namespace: 命名空间（默认为"default"）
         force: 是否强制执行操作
     """
+    if not tenant_name:
+        return "必须指定租户名称"
     try:
         cmd = (
             f"okctl tenant changepwd {tenant_name} --password={password} -n {namespace}"
@@ -225,6 +231,8 @@ def replay_tenant_log(
         unlimited: 是否不限制时间（默认为True）
         until_timestamp: 租户恢复的时间戳，例如: 2024-02-23 17:47:00
     """
+    if not tenant_name:
+        return "必须指定租户名称"
     try:
         cmd = f"okctl tenant replaylog {tenant_name} -n {namespace}"
 
@@ -271,6 +279,8 @@ def scale_tenant(
         min_iops: 单位的最小IOPS（默认为1024）
         unit_number: 租户的单位数量（默认为1）
     """
+    if not tenant_name:
+        return "必须指定租户名称"
     try:
         cmd = f"okctl tenant scale {tenant_name} -n {namespace}"
 
@@ -308,6 +318,8 @@ def show_tenant(tenant_name: str, namespace: str = "default"):
         tenant_name: 租户名称
         namespace: 命名空间（默认为"default"）
     """
+    if not tenant_name:
+        return "必须指定租户名称"
     try:
         cmd = f"okctl tenant show {tenant_name} -n {namespace}"
         result = subprocess.run(
@@ -333,6 +345,8 @@ def switchover_tenant(
         namespace: 命名空间（默认为"default"）
         force: 是否强制执行操作
     """
+    if not primary_tenant_name or not standby_tenant_name:
+        return "必须指定主租户和备租户名称"
     try:
         cmd = f"okctl tenant switchover {primary_tenant_name} {standby_tenant_name} -n {namespace}"
         if force:
@@ -362,6 +376,8 @@ def update_tenant(
         force: 是否强制执行操作
         priority: 租户的可用区优先级，格式为'Zone=Priority'，可使用逗号分隔多个优先级
     """
+    if not tenant_name:
+        return "必须指定租户名称"
     try:
         cmd = f"okctl tenant update {tenant_name} -n {namespace}"
 
@@ -390,6 +406,8 @@ def upgrade_tenant(tenant_name: str, namespace: str = "default", force: bool = F
         namespace: 命名空间（默认为"default"）
         force: 是否强制升级
     """
+    if not tenant_name:
+        return "必须指定租户名称"
     try:
         cmd = f"okctl tenant upgrade {tenant_name} -n {namespace}"
         if force:

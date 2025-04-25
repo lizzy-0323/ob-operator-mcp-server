@@ -33,6 +33,8 @@ def show_cluster(cluster_name: str, namespace: str = "default"):
         cluster_name: 要显示的集群名称
         namespace: 集群所在的命名空间（默认为"default"）
     """
+    if not cluster_name:
+        return "必须指定集群名称"
     try:
         cmd = f"okctl cluster show {cluster_name} -n {namespace}"
         result = subprocess.run(
@@ -52,6 +54,8 @@ def scale_cluster(cluster_name: str, zones: str, namespace: str = "default"):
         zones: 集群的可用区，例如 'z1=1'，设置副本数为0以删除可用区
         namespace: 集群所在的命名空间（默认为"default"）
     """
+    if not cluster_name or not zones:
+        return "必须指定集群名称和可用区"
     try:
         cmd = f"okctl cluster scale {cluster_name} -n {namespace} --zones={zones}"
         result = subprocess.run(
@@ -89,6 +93,8 @@ def update_cluster(
         redo_log_storage_class: 重做日志存储的存储类
         redo_log_storage_size: 重做日志存储的大小（默认为50）
     """
+    if not cluster_name:
+        return "必须指定集群名称"
     try:
         cmd = f"okctl cluster update {cluster_name} -n {namespace}"
 
@@ -127,6 +133,8 @@ def upgrade_cluster(cluster_name: str, image: str, namespace: str = "default"):
         image: 观察者的镜像
         namespace: 集群所在的命名空间（默认为"default"）
     """
+    if not cluster_name or not image:
+        return "必须指定集群名称和镜像"
     try:
         cmd = f"okctl cluster upgrade {cluster_name} -n {namespace} --image {image}"
         result = subprocess.run(
@@ -145,6 +153,8 @@ def delete_cluster(cluster_name: str, namespace: str = "default"):
         cluster_name: 要删除的集群名称
         namespace: 要从中删除集群的命名空间
     """
+    if not cluster_name:
+        return "必须指定集群名称"
     try:
         cmd = f"okctl cluster delete {cluster_name} -n {namespace}"
         result = subprocess.run(
@@ -198,6 +208,8 @@ def create_cluster(
         root_password: 集群的root密码
         zones: 集群的可用区，例如'--zones=<zone>=<replica>'（默认为[z1=1]）
     """
+    if not cluster_name:
+        return "必须指定集群名称"
     try:
         cmd = f"okctl cluster create {cluster_name} -n {namespace}"
 

@@ -15,6 +15,8 @@ def list_backup_policies(cluster_name: str, namespace: str = "default"):
         cluster_name: 集群名称
         namespace: 命名空间（默认为"default"）
     """
+    if not cluster_name:
+        return "必须指定集群名称"
     try:
         cmd = f"okctl backup-policy list {cluster_name} -n {namespace}"
         result = subprocess.run(
@@ -59,6 +61,8 @@ def create_backup_policy(
         oss_access_key: OSS目标的访问密钥
         recovery_days: 保留恢复作业的天数（默认为30）
     """
+    if not tenant_name:
+        return "必须指定租户名称"
     try:
         cmd = f"okctl backup-policy create {tenant_name} -n {namespace}"
 
@@ -103,6 +107,8 @@ def delete_backup_policy(
         namespace: 命名空间（默认为"default"）
         force: 强制删除租户备份策略
     """
+    if not tenant_name:
+        return "必须指定租户名称"
     try:
         cmd = f"okctl backup-policy delete {tenant_name} -n {namespace}"
         if force:
@@ -130,6 +136,8 @@ def show_backup_policy(
         job_type: 备份策略的作业类型，例如 FULL、INC、CLEAN、ARCHIVE、ALL（默认为"ALL"）
         limit: 查看的备份策略的作业数量
     """
+    if not tenant_name:
+        return "必须指定租户名称"
     try:
         cmd = f"okctl backup-policy show {tenant_name} -n {namespace}"
 
@@ -155,6 +163,8 @@ def pause_backup_policy(tenant_name: str, namespace: str = "default"):
         tenant_name: 租户名称
         namespace: 命名空间（默认为"default"）
     """
+    if not tenant_name:
+        return "必须指定租户名称"
     try:
         cmd = f"okctl backup-policy pause {tenant_name} -n {namespace}"
         result = subprocess.run(
@@ -173,6 +183,8 @@ def resume_backup_policy(tenant_name: str, namespace: str = "default"):
         tenant_name: 租户名称
         namespace: 命名空间（默认为"default"）
     """
+    if not tenant_name:
+        return "必须指定租户名称"
     try:
         cmd = f"okctl backup-policy resume {tenant_name} -n {namespace}"
         result = subprocess.run(
@@ -204,6 +216,8 @@ def update_backup_policy(
         piece_interval_days: 切换备份片段的天数（默认为1）
         recovery_days: 保留备份恢复的天数（默认为30）
     """
+    if not tenant_name:
+        return "必须指定租户名称"
     try:
         cmd = f"okctl backup-policy update {tenant_name} -n {namespace}"
 
