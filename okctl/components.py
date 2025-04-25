@@ -1,5 +1,6 @@
 import subprocess
 from typing import Optional
+from okctl.utils import format_error
 
 # 导入mcp实例
 from okctl import mcp
@@ -9,7 +10,7 @@ from okctl import mcp
 
 @mcp.tool()
 def install_component(
-    component_name: str,
+    component_name: Optional[str] = None,
     version: Optional[str] = None,
 ):
     """安装OceanBase组件, 目前支持ob-operator，ob-dashboard, local-path-provisioner,cert-manager,不支持其他组件，
@@ -38,12 +39,12 @@ def install_component(
         )
         return result.stdout
     except subprocess.CalledProcessError as e:
-        return f"执行命令失败: {e}"
+        return format_error(e)
 
 
 @mcp.tool()
 def update_component(
-    component_name: str,
+    component_name: Optional[str] = None,
 ):
     """更新OceanBase组件, 目前支持ob-operator，ob-dashboard, local-path-provisioner,cert-manager,不支持其他组件，
     如果未指定，默认将更新ob-operator和 ob-dashboard
@@ -66,7 +67,7 @@ def update_component(
         )
         return result.stdout
     except subprocess.CalledProcessError as e:
-        return f"执行命令失败: {e}"
+        return format_error(e)
 
 
 @mcp.tool()
@@ -79,4 +80,4 @@ def install_okctl():
         )
         return result.stdout
     except subprocess.CalledProcessError as e:
-        return f"执行命令失败: {e}"
+        return format_error(e)
