@@ -1,12 +1,12 @@
 import subprocess
 from typing import Optional
+from okctl.utils import format_error
 
 # 导入mcp实例
 from okctl import mcp
 
+
 # 备份策略相关的工具
-
-
 @mcp.tool()
 def list_backup_policies(cluster_name: str, namespace: str = "default"):
     """列出指定集群中的所有备份策略
@@ -27,7 +27,7 @@ def list_backup_policies(cluster_name: str, namespace: str = "default"):
             return "没有找到备份策略"
         return output
     except subprocess.CalledProcessError as e:
-        return f"执行命令失败: {e}"
+        return format_error(e)
 
 
 @mcp.tool()
@@ -93,7 +93,7 @@ def create_backup_policy(
         )
         return result.stdout
     except subprocess.CalledProcessError as e:
-        return f"执行命令失败: {e}"
+        return format_error(e)
 
 
 @mcp.tool()
@@ -118,7 +118,7 @@ def delete_backup_policy(
         )
         return result.stdout
     except subprocess.CalledProcessError as e:
-        return f"执行命令失败: {e}"
+        return format_error(e)
 
 
 @mcp.tool()
@@ -152,7 +152,7 @@ def show_backup_policy(
         )
         return result.stdout
     except subprocess.CalledProcessError as e:
-        return f"执行命令失败: {e}"
+        return format_error(e)
 
 
 @mcp.tool()
@@ -172,7 +172,7 @@ def pause_backup_policy(tenant_name: str, namespace: str = "default"):
         )
         return result.stdout
     except subprocess.CalledProcessError as e:
-        return f"执行命令失败: {e}"
+        return format_error(e)
 
 
 @mcp.tool()
@@ -192,7 +192,7 @@ def resume_backup_policy(tenant_name: str, namespace: str = "default"):
         )
         return result.stdout
     except subprocess.CalledProcessError as e:
-        return f"执行命令失败: {e}"
+        return format_error(e)
 
 
 @mcp.tool()
@@ -238,4 +238,4 @@ def update_backup_policy(
         )
         return result.stdout
     except subprocess.CalledProcessError as e:
-        return f"执行命令失败: {e}"
+        return format_error(e)

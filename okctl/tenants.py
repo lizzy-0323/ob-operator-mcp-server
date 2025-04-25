@@ -1,5 +1,6 @@
 import subprocess
 from typing import Optional
+from okctl.utils import format_error
 
 # 导入mcp实例
 from okctl import mcp
@@ -24,7 +25,7 @@ def list_tenants(namespace: str = "default"):
             return "没有找到租户"
         return output
     except subprocess.CalledProcessError as e:
-        return f"执行命令失败: {e}"
+        return format_error(e)
 
 
 @mcp.tool()
@@ -46,8 +47,8 @@ def create_tenant(
     min_iops: Optional[int] = None,
     oss_access_id: Optional[str] = None,
     oss_access_key: Optional[str] = None,
-    priority: Optional[str] = None,
     restore: bool = False,
+    priority: Optional[str] = None,
     restore_type: Optional[str] = None,
     root_password: Optional[str] = None,
     tenant_name_override: Optional[str] = None,
@@ -75,7 +76,7 @@ def create_tenant(
         min_iops: 单位的最小IOPS（默认为1024）
         oss_access_id: 归档的OSS访问ID
         oss_access_key: 归档的OSS访问密钥
-        priority: 租户的可用区优先级，格式为'Zone=Priority'，可使用逗号分隔多个优先级（默认为[z1=1]）
+        priority: 租户的可用区优先级，格式为'Zone=Priority'，可使用逗号分隔多个优先级（必需）
         restore: 是否从备份恢复，默认为False
         restore_type: 恢复类型，支持OSS或NFS（默认为"OSS"）
         root_password: 租户的root密码，如果不指定，则会自动生成
@@ -88,8 +89,10 @@ def create_tenant(
         return "必须指定集群名称"
     if not tenant_name:
         return "必须指定租户名称"
+    if not priority:
+        return "必须指定租户的可用区优先级，例如'--priority zone1=1,zone2=2'"
     try:
-        cmd = f"okctl tenant create {tenant_name} --cluster={cluster} -n {namespace}"
+        cmd = f"okctl tenant create {tenant_name} --cluster={cluster} -n {namespace} --priority {priority}"
 
         # 添加可选参数
         if archive_source:
@@ -120,8 +123,6 @@ def create_tenant(
             cmd += f" --oss-access-id {oss_access_id}"
         if oss_access_key:
             cmd += f" --oss-access-key {oss_access_key}"
-        if priority:
-            cmd += f" --priority {priority}"
         if restore:
             cmd += " -r"
         if restore_type:
@@ -142,7 +143,7 @@ def create_tenant(
         )
         return result.stdout
     except subprocess.CalledProcessError as e:
-        return f"执行命令失败: {e}"
+        return format_error(e)
 
 
 @mcp.tool()
@@ -160,7 +161,7 @@ def delete_tenant(tenant_name: str, namespace: str = "default"):
         )
         return result.stdout
     except subprocess.CalledProcessError as e:
-        return f"执行命令失败: {e}"
+        return format_error(e)
 
 
 @mcp.tool()
@@ -183,7 +184,7 @@ def activate_tenant(
         )
         return result.stdout
     except subprocess.CalledProcessError as e:
-        return f"执行命令失败: {e}"
+        return format_error(e)
 
 
 @mcp.tool()
@@ -211,7 +212,7 @@ def change_tenant_password(
         )
         return result.stdout
     except subprocess.CalledProcessError as e:
-        return f"执行命令失败: {e}"
+        return format_error(e)
 
 
 @mcp.tool()
@@ -249,7 +250,7 @@ def replay_tenant_log(
         )
         return result.stdout
     except subprocess.CalledProcessError as e:
-        return f"执行命令失败: {e}"
+        return format_error(e)
 
 
 @mcp.tool()
@@ -307,7 +308,7 @@ def scale_tenant(
         )
         return result.stdout
     except subprocess.CalledProcessError as e:
-        return f"执行命令失败: {e}"
+        return format_error(e)
 
 
 @mcp.tool()
@@ -327,7 +328,7 @@ def show_tenant(tenant_name: str, namespace: str = "default"):
         )
         return result.stdout
     except subprocess.CalledProcessError as e:
-        return f"执行命令失败: {e}"
+        return format_error(e)
 
 
 @mcp.tool()
@@ -356,7 +357,7 @@ def switchover_tenant(
         )
         return result.stdout
     except subprocess.CalledProcessError as e:
-        return f"执行命令失败: {e}"
+        return format_error(e)
 
 
 @mcp.tool()
@@ -394,7 +395,7 @@ def update_tenant(
         )
         return result.stdout
     except subprocess.CalledProcessError as e:
-        return f"执行命令失败: {e}"
+        return format_error(e)
 
 
 @mcp.tool()
@@ -417,4 +418,4 @@ def upgrade_tenant(tenant_name: str, namespace: str = "default", force: bool = F
         )
         return result.stdout
     except subprocess.CalledProcessError as e:
-        return f"执行命令失败: {e}"
+        return format_error(e)

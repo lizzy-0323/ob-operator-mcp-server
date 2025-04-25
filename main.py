@@ -13,7 +13,7 @@ import logging
 logging.basicConfig(
     level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
-logger = logging.getLogger("oceanbase_mcp_server")
+logger = logging.getLogger("okctl_mcp_server")
 
 
 def main():

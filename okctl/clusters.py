@@ -1,5 +1,6 @@
 import subprocess
 from typing import Optional
+from okctl.utils import format_error
 
 # 导入mcp实例
 from okctl import mcp
@@ -22,7 +23,7 @@ def list_all_clusters():
             return "没有找到集群"
         return output
     except subprocess.CalledProcessError as e:
-        return f"执行命令失败: {e}"
+        return format_error(e)
 
 
 @mcp.tool()
@@ -42,7 +43,7 @@ def show_cluster(cluster_name: str, namespace: str = "default"):
         )
         return result.stdout
     except subprocess.CalledProcessError as e:
-        return f"执行命令失败: {e}"
+        return format_error(e)
 
 
 @mcp.tool()
@@ -63,7 +64,7 @@ def scale_cluster(cluster_name: str, zones: str, namespace: str = "default"):
         )
         return result.stdout
     except subprocess.CalledProcessError as e:
-        return f"执行命令失败: {e}"
+        return format_error(e)
 
 
 @mcp.tool()
@@ -121,7 +122,7 @@ def update_cluster(
         )
         return result.stdout
     except subprocess.CalledProcessError as e:
-        return f"执行命令失败: {e}"
+        return format_error(e)
 
 
 @mcp.tool()
@@ -142,7 +143,7 @@ def upgrade_cluster(cluster_name: str, image: str, namespace: str = "default"):
         )
         return result.stdout
     except subprocess.CalledProcessError as e:
-        return f"执行命令失败: {e}"
+        return format_error(e)
 
 
 @mcp.tool()
@@ -162,7 +163,7 @@ def delete_cluster(cluster_name: str, namespace: str = "default"):
         )
         return result.stdout
     except subprocess.CalledProcessError as e:
-        return f"执行命令失败: {e}"
+        return format_error(e)
 
 
 @mcp.tool()
@@ -252,4 +253,4 @@ def create_cluster(
         )
         return result.stdout
     except subprocess.CalledProcessError as e:
-        return f"执行命令失败: {e}"
+        return format_error(e)
