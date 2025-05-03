@@ -1,3 +1,4 @@
+# .github/workflows/push_pr.yml
 name: CI
 
 on:
@@ -29,3 +30,6 @@ jobs:
           python -m pip install --upgrade pip
           pip install uv
           uv sync
+      - name: Run tests
+        run: |
+          pytest
