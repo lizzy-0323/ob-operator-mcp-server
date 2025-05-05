@@ -6,6 +6,7 @@ readme = "README.md"
 requires-python = ">=3.10"
 dependencies = [
     "fastmcp>=2.2.1",
+    "mysql-connector-python>=9.3.0",
     "pytest>=7.0.0",
     "pytest-asyncio>=0.21.0",
     "pydantic>=2.0.0",
