@@ -87,7 +87,7 @@ Provides functionality for installing, updating, and managing OceanBase componen
   "mcpServers": {
     "okctl-mcp-server-py": {
       "command": "uv",
-      "args": ["--directory", "/path/to/okctl-mcp-server-py", "run", "main.py"]
+      "args": ["--directory", "/path/to/okctl-mcp-server", "run", "src/okctl/server.py"]
     }
   }
 }

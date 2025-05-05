@@ -1,6 +1,6 @@
 import subprocess
 from typing import Optional
-from okctl.utils import format_error
+from okctl.utils.errors import format_error
 
 # 导入mcp实例
 from okctl import mcp
