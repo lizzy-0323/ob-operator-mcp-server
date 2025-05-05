@@ -50,7 +50,20 @@
 - `pause_backup_policy()` - 暂停备份策略
 - `resume_backup_policy()` - 恢复备份策略
 
-### 4. 组件管理 (components.py)
+### 4. SQL操作 (sql.py)
+
+提供了配置数据库连接和在OceanBase集群上执行SQL查询的功能。
+
+- `configure_cluster_connection()` - 配置到集群的数据库连接
+  - 参数：cluster_name（集群名称）, database（数据库名称）, namespace（命名空间，默认为"default"）, user（用户名）, password（密码）, port（端口，默认为2881）
+  - 返回：数据库连接配置信息
+  
+- `execute_cluster_sql()` - 在集群上执行SQL查询
+  - 参数：query（查询语句）, cluster_name（集群名称，可选）, database（数据库名称，可选）, namespace（命名空间，默认为"default"）
+  - 返回：查询结果
+  - 支持各种SQL命令，包括SELECT、SHOW TABLES、SHOW COLUMNS、DESCRIBE和DML语句
+
+### 5. 组件管理 (components.py)
 
 提供了安装、更新和管理 OceanBase 组件的功能。
 
@@ -74,11 +87,30 @@
   "mcpServers": {
     "okctl-mcp-server-py": {
       "command": "uv",
-      "args": ["--directory", "/path/to/okctl-mcp-server", "run", "src/okctl/server.py"]
+      "args": ["--directory", "/path/to/okctl-mcp-server", "run", "src/okctl/server.py"],
+      "env": {
+        "OB_CLUSTER_USER": USER,
+        "OB_CLUSTER_PASSWORD": PASSWORD
+      }
     }
   }
 }
 ```
+
+#### 命令行参数
+
+- `--tools`: 指定要启用的工具，用逗号分隔。选项：
+  - `all`: 启用所有工具（默认）
+  - `cluster`: 仅启用集群管理工具
+  - `tenant`: 仅启用租户管理工具
+  - `backup`: 仅启用备份策略管理工具
+  - `component`: 仅启用组件管理工具
+  - `sql`: 仅启用SQL操作工具
+  
+  示例：`--tools=cluster,tenant,sql`
+
+- `--use_sse`: 使用服务器发送事件（SSE）传输而不是标准输入输出
+- `--port`: 指定SSE传输的端口（默认：8000）
 
 ## 注意事项
 
