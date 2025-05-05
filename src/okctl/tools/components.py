@@ -1,6 +1,6 @@
 import subprocess
 from typing import Optional
-from okctl.utils import format_error
+from okctl.utils.errors import format_error
 
 # 导入mcp实例
 from okctl import mcp
@@ -34,9 +34,7 @@ def install_component(
         if version:
             cmd += f" --version {version}"
 
-        result = subprocess.run(
-            ["sh", "-c", cmd], capture_output=True, text=True, check=True
-        )
+        result = subprocess.run(["sh", "-c", cmd], capture_output=True, text=True, check=True)
         return result.stdout
     except subprocess.CalledProcessError as e:
         return format_error(e)
@@ -62,9 +60,7 @@ def update_component(
     try:
         cmd = f"okctl update {component_name}"
 
-        result = subprocess.run(
-            ["sh", "-c", cmd], capture_output=True, text=True, check=True
-        )
+        result = subprocess.run(["sh", "-c", cmd], capture_output=True, text=True, check=True)
         return result.stdout
     except subprocess.CalledProcessError as e:
         return format_error(e)
@@ -75,9 +71,7 @@ def install_okctl():
     """安装okctl"""
     try:
         cmd = "curl -sL https://raw.githubusercontent.com/oceanbase/ob-operator/master/scripts/install-okctl.sh | bash && ./okctl install && mv ./okctl /usr/local/bin"
-        result = subprocess.run(
-            ["sh", "-c", cmd], capture_output=True, text=True, check=True
-        )
+        result = subprocess.run(["sh", "-c", cmd], capture_output=True, text=True, check=True)
         return result.stdout
     except subprocess.CalledProcessError as e:
         return format_error(e)
