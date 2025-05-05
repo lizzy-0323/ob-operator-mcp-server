@@ -87,7 +87,11 @@
   "mcpServers": {
     "okctl-mcp-server-py": {
       "command": "uv",
-      "args": ["--directory", "/path/to/okctl-mcp-server", "run", "src/okctl/server.py"]
+      "args": ["--directory", "/path/to/okctl-mcp-server", "run", "src/okctl/server.py"],
+      "env": {
+        "OB_CLUSTER_USER": USER,
+        "OB_CLUSTER_PASSWORD": PASSWORD
+      }
     }
   }
 }

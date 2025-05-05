@@ -57,7 +57,6 @@ Provides functionality for configuring database connections and executing SQL qu
 - `configure_cluster_connection()` - Configure database connection to a cluster
   - Parameters: cluster_name, database, namespace (default: "default"), user, password, port (default: 2881)
   - Returns: Database connection configuration information
-  
 - `execute_cluster_sql()` - Execute SQL queries on a cluster
   - Parameters: query, cluster_name (optional), database (optional), namespace (default: "default")
   - Returns: Query results
@@ -87,21 +86,27 @@ Provides functionality for installing, updating, and managing OceanBase componen
   "mcpServers": {
     "okctl-mcp-server-py": {
       "command": "uv",
-      "args": ["--directory", "/path/to/okctl-mcp-server", "run", "src/okctl/server.py"]
+      "args": ["--directory", "/path/to/okctl-mcp-server", "run", "src/okctl/server.py"],
+      "env": {
+        "OB_CLUSTER_USER": USER,
+        "OB_CLUSTER_PASSWORD": PASSWORD
+      }
     }
   }
 }
 ```
+
 #### Command Line Arguments
 
 - `--tools`: Specify which tools to enable, comma separated. Options:
+
   - `all`: Enable all tools (default)
   - `cluster`: Enable cluster management tools only
   - `tenant`: Enable tenant management tools only
   - `backup`: Enable backup policy management tools only
   - `component`: Enable component management tools only
   - `sql`: Enable SQL operation tools only
-  
+
   Example: `--tools=cluster,tenant,sql`
 
 - `--use_sse`: Use Server-Sent Events (SSE) transport instead of stdio
