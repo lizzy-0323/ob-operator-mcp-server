@@ -101,13 +101,13 @@ Provides functionality for installing, updating, and managing OceanBase componen
 - `--tools`: Specify which tools to enable, comma separated. Options:
 
   - `all`: Enable all tools (default)
-  - `cluster`: Enable cluster management tools only
-  - `tenant`: Enable tenant management tools only
-  - `backup`: Enable backup policy management tools only
-  - `component`: Enable component management tools only
+  - `clusters`: Enable cluster management tools only
+  - `tenants`: Enable tenant management tools only
+  - `backup_policy`: Enable backup policy management tools only
+  - `components`: Enable component management tools only
   - `sql`: Enable SQL operation tools only
 
-  Example: `--tools=cluster,tenant,sql`
+  Example: `--tools=clusters,tenants,sql`
 
 - `--use_sse`: Use Server-Sent Events (SSE) transport instead of stdio
 - `--port`: Specify the port for SSE transport (default: 8000)
