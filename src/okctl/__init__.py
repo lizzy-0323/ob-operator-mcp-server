@@ -1,4 +1,3 @@
-# 从主模块导入mcp实例
 # 创建FastMCP实例
 from fastmcp import FastMCP
 

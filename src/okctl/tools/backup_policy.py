@@ -1,6 +1,6 @@
 import subprocess
 from typing import Optional
-from okctl.utils import format_error
+from okctl.utils.errors import format_error
 
 # 导入mcp实例
 from okctl import mcp
@@ -19,9 +19,7 @@ def list_backup_policies(cluster_name: str, namespace: str = "default"):
         return "必须指定集群名称"
     try:
         cmd = f"okctl backup-policy list {cluster_name} -n {namespace}"
-        result = subprocess.run(
-            ["sh", "-c", cmd], capture_output=True, text=True, check=True
-        )
+        result = subprocess.run(["sh", "-c", cmd], capture_output=True, text=True, check=True)
         output = result.stdout
         if not output.strip():
             return "没有找到备份策略"
@@ -88,18 +86,14 @@ def create_backup_policy(
         if recovery_days is not None:
             cmd += f" --recovery-days {recovery_days}"
 
-        result = subprocess.run(
-            ["sh", "-c", cmd], capture_output=True, text=True, check=True
-        )
+        result = subprocess.run(["sh", "-c", cmd], capture_output=True, text=True, check=True)
         return result.stdout
     except subprocess.CalledProcessError as e:
         return format_error(e)
 
 
 @mcp.tool()
-def delete_backup_policy(
-    tenant_name: str, namespace: str = "default", force: bool = False
-):
+def delete_backup_policy(tenant_name: str, namespace: str = "default", force: bool = False):
     """删除指定租户的备份策略
 
     Args:
@@ -113,9 +107,7 @@ def delete_backup_policy(
         cmd = f"okctl backup-policy delete {tenant_name} -n {namespace}"
         if force:
             cmd += " -f"
-        result = subprocess.run(
-            ["sh", "-c", cmd], capture_output=True, text=True, check=True
-        )
+        result = subprocess.run(["sh", "-c", cmd], capture_output=True, text=True, check=True)
         return result.stdout
     except subprocess.CalledProcessError as e:
         return format_error(e)
@@ -147,9 +139,7 @@ def show_backup_policy(
         if limit is not None:
             cmd += f" --limit {limit}"
 
-        result = subprocess.run(
-            ["sh", "-c", cmd], capture_output=True, text=True, check=True
-        )
+        result = subprocess.run(["sh", "-c", cmd], capture_output=True, text=True, check=True)
         return result.stdout
     except subprocess.CalledProcessError as e:
         return format_error(e)
@@ -167,9 +157,7 @@ def pause_backup_policy(tenant_name: str, namespace: str = "default"):
         return "必须指定租户名称"
     try:
         cmd = f"okctl backup-policy pause {tenant_name} -n {namespace}"
-        result = subprocess.run(
-            ["sh", "-c", cmd], capture_output=True, text=True, check=True
-        )
+        result = subprocess.run(["sh", "-c", cmd], capture_output=True, text=True, check=True)
         return result.stdout
     except subprocess.CalledProcessError as e:
         return format_error(e)
@@ -187,9 +175,7 @@ def resume_backup_policy(tenant_name: str, namespace: str = "default"):
         return "必须指定租户名称"
     try:
         cmd = f"okctl backup-policy resume {tenant_name} -n {namespace}"
-        result = subprocess.run(
-            ["sh", "-c", cmd], capture_output=True, text=True, check=True
-        )
+        result = subprocess.run(["sh", "-c", cmd], capture_output=True, text=True, check=True)
         return result.stdout
     except subprocess.CalledProcessError as e:
         return format_error(e)
@@ -233,9 +219,7 @@ def update_backup_policy(
         if recovery_days is not None:
             cmd += f" --recovery-days {recovery_days}"
 
-        result = subprocess.run(
-            ["sh", "-c", cmd], capture_output=True, text=True, check=True
-        )
+        result = subprocess.run(["sh", "-c", cmd], capture_output=True, text=True, check=True)
         return result.stdout
     except subprocess.CalledProcessError as e:
         return format_error(e)
