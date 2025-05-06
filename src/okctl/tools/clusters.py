@@ -1,4 +1,7 @@
 import subprocess
+import asyncio
+import re
+import time
 from typing import Optional
 from okctl.utils.errors import format_error
 
@@ -29,7 +32,8 @@ def list_all_clusters():
 @mcp.tool()
 def show_cluster(cluster_name: str, namespace: str = "default"):
     """显示指定OceanBase集群的概览
-
+    IMPORTANT:
+        当集群状态不是"Running"时，直接停止回答返回信息
     Args:
         cluster_name: 要显示的集群名称
         namespace: 集群所在的命名空间（默认为"default"）
@@ -38,7 +42,9 @@ def show_cluster(cluster_name: str, namespace: str = "default"):
         return "必须指定集群名称"
     try:
         cmd = f"okctl cluster show {cluster_name} -n {namespace}"
-        result = subprocess.run(["sh", "-c", cmd], capture_output=True, text=True, check=True)
+        result = subprocess.run(
+            ["sh", "-c", cmd], capture_output=True, text=True, check=True
+        )
         return result.stdout
     except subprocess.CalledProcessError as e:
         return format_error(e)
@@ -50,14 +56,16 @@ def scale_cluster(cluster_name: str, zones: str, namespace: str = "default"):
 
     Args:
         cluster_name: 要扩缩的集群名称
-        zones: 集群的可用区，例如 'z1=1'，设置副本数为0以删除可用区
+        zones: 集群的可用区，例如 'z1=1'，设置副本数为0以删除可用区,每次只能修改一个可用区
         namespace: 集群所在的命名空间（默认为"default"）
     """
     if not cluster_name or not zones:
         return "必须指定集群名称和可用区"
     try:
         cmd = f"okctl cluster scale {cluster_name} -n {namespace} --zones={zones}"
-        result = subprocess.run(["sh", "-c", cmd], capture_output=True, text=True, check=True)
+        result = subprocess.run(
+            ["sh", "-c", cmd], capture_output=True, text=True, check=True
+        )
         return result.stdout
     except subprocess.CalledProcessError as e:
         return format_error(e)
@@ -113,7 +121,9 @@ def update_cluster(
         if redo_log_storage_size:
             cmd += f" --redo-log-storage-size {redo_log_storage_size}"
 
-        result = subprocess.run(["sh", "-c", cmd], capture_output=True, text=True, check=True)
+        result = subprocess.run(
+            ["sh", "-c", cmd], capture_output=True, text=True, check=True
+        )
         return result.stdout
     except subprocess.CalledProcessError as e:
         return format_error(e)
@@ -132,7 +142,9 @@ def upgrade_cluster(cluster_name: str, image: str, namespace: str = "default"):
         return "必须指定集群名称和镜像"
     try:
         cmd = f"okctl cluster upgrade {cluster_name} -n {namespace} --image {image}"
-        result = subprocess.run(["sh", "-c", cmd], capture_output=True, text=True, check=True)
+        result = subprocess.run(
+            ["sh", "-c", cmd], capture_output=True, text=True, check=True
+        )
         return result.stdout
     except subprocess.CalledProcessError as e:
         return format_error(e)
@@ -150,14 +162,16 @@ def delete_cluster(cluster_name: str, namespace: str = "default"):
         return "必须指定集群名称"
     try:
         cmd = f"okctl cluster delete {cluster_name} -n {namespace}"
-        result = subprocess.run(["sh", "-c", cmd], capture_output=True, text=True, check=True)
+        result = subprocess.run(
+            ["sh", "-c", cmd], capture_output=True, text=True, check=True
+        )
         return result.stdout
     except subprocess.CalledProcessError as e:
         return format_error(e)
 
 
 @mcp.tool()
-def create_cluster(
+async def create_cluster(
     cluster_name: str,
     namespace: str = "default",
     backup_storage_address: Optional[str] = None,
@@ -238,7 +252,49 @@ def create_cluster(
         if zones:
             cmd += f" --zones {zones}"
 
-        result = subprocess.run(["sh", "-c", cmd], capture_output=True, text=True, check=True)
-        return result.stdout
-    except subprocess.CalledProcessError as e:
+        # 执行创建集群命令
+        process = await asyncio.create_subprocess_shell(
+            cmd, stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE
+        )
+        stdout_bytes, stderr_bytes = await process.communicate()
+
+        stdout = stdout_bytes.decode("utf-8") if stdout_bytes else ""
+        stderr = stderr_bytes.decode("utf-8") if stderr_bytes else ""
+
+        if process.returncode != 0:
+            return format_error(f"命令执行失败: {stderr}")
+
+        # 创建命令执行成功后，异步检测集群是否真正创建完成
+        result = stdout
+
+        # 异步等待集群就绪
+        max_retries = 30  # 最大重试次数
+        retry_interval = 10  # 重试间隔（秒）
+
+        for i in range(max_retries):
+            # 使用 okctl cluster list 检查集群状态
+            check_cmd = f"okctl cluster list | grep {cluster_name}"
+            check_process = await asyncio.create_subprocess_shell(
+                check_cmd,
+                stdout=asyncio.subprocess.PIPE,
+                stderr=asyncio.subprocess.PIPE,
+            )
+            check_stdout_bytes, check_stderr_bytes = await check_process.communicate()
+            check_stdout = (
+                check_stdout_bytes.decode("utf-8") if check_stdout_bytes else ""
+            )
+
+            # 查找集群的主Pod（格式如：test2-1746509963-z1-gz4729）
+            pod_pattern = re.compile(f"{cluster_name}-\d+-z\d+-\w+")
+            # 查找check_stdout中是否是running状态
+            if "running" in check_stdout.lower():
+                result += f"\n集群 {cluster_name} 已成功创建并准备就绪！"
+                return result
+            # 如果还没准备好，等待一段时间后重试
+            if i < max_retries - 1:
+                await asyncio.sleep(retry_interval)
+        # 如果达到最大重试次数仍未就绪
+        result += f"\n警告：集群 {cluster_name} 已创建，但在规定时间内未检测到running状态。请手动检查集群状态。"
+        return result
+    except Exception as e:
         return format_error(e)
