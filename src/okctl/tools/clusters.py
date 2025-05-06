@@ -32,12 +32,11 @@ def list_all_clusters():
 @mcp.tool()
 def show_cluster(cluster_name: str, namespace: str = "default"):
     """显示指定OceanBase集群的概览
-
+    IMPORTANT:
+        当集群状态不是"Running"时，直接停止回答返回信息
     Args:
         cluster_name: 要显示的集群名称
         namespace: 集群所在的命名空间（默认为"default"）
-    IMPORTANT:
-        当集群状态不是"Running"时，不需要一直调用show_cluster
     """
     if not cluster_name:
         return "必须指定集群名称"
@@ -57,7 +56,7 @@ def scale_cluster(cluster_name: str, zones: str, namespace: str = "default"):
 
     Args:
         cluster_name: 要扩缩的集群名称
-        zones: 集群的可用区，例如 'z1=1'，设置副本数为0以删除可用区
+        zones: 集群的可用区，例如 'z1=1'，设置副本数为0以删除可用区,每次只能修改一个可用区
         namespace: 集群所在的命名空间（默认为"default"）
     """
     if not cluster_name or not zones:

@@ -1,4 +1,7 @@
 import subprocess
+import asyncio
+import re
+import time
 from typing import Optional
 from okctl.utils.errors import format_error
 
@@ -16,7 +19,7 @@ def list_tenants(namespace: str = "default"):
         namespace: 命名空间（默认为"default"）
     """
     try:
-        cmd = f"okctl tenant list  -n {namespace}"
+        cmd = f"okctl tenant list  -p {namespace}"
         result = subprocess.run(
             ["sh", "-c", cmd], capture_output=True, text=True, check=True
         )
@@ -29,7 +32,7 @@ def list_tenants(namespace: str = "default"):
 
 
 @mcp.tool()
-def create_tenant(
+async def create_tenant(
     tenant_name: str,
     cluster: str,
     namespace: str = "default",
@@ -91,6 +94,8 @@ def create_tenant(
         return "必须指定租户名称"
     if not priority:
         return "必须指定租户的可用区优先级，例如'--priority zone1=1,zone2=2'"
+    if from_tenant and not root_password:
+        return "创建备用租户时，必须指定主租户的root密码"
     try:
         cmd = f"okctl tenant create {tenant_name} --cluster={cluster} -n {namespace} --priority {priority}"
 
@@ -138,11 +143,49 @@ def create_tenant(
         if until_timestamp:
             cmd += f" --until-timestamp {until_timestamp}"
 
-        result = subprocess.run(
-            ["sh", "-c", cmd], capture_output=True, text=True, check=True
+        # 执行创建租户命令
+        process = await asyncio.create_subprocess_shell(
+            cmd, stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE
         )
-        return result.stdout
-    except subprocess.CalledProcessError as e:
+        stdout_bytes, stderr_bytes = await process.communicate()
+
+        stdout = stdout_bytes.decode("utf-8") if stdout_bytes else ""
+        stderr = stderr_bytes.decode("utf-8") if stderr_bytes else ""
+
+        if process.returncode != 0:
+            return format_error(f"命令执行失败: {stderr}")
+
+        # 创建命令执行成功后，异步检测租户是否真正创建完成
+        result = stdout
+
+        # 异步等待租户就绪
+        max_retries = 30  # 最大重试次数
+        retry_interval = 10  # 重试间隔（秒）
+
+        for i in range(max_retries):
+            # 使用 okctl tenant list 检查租户状态
+            check_cmd = f"okctl tenant list -p {namespace} | grep {tenant_name}"
+            check_process = await asyncio.create_subprocess_shell(
+                check_cmd,
+                stdout=asyncio.subprocess.PIPE,
+                stderr=asyncio.subprocess.PIPE,
+            )
+            check_stdout_bytes, check_stderr_bytes = await check_process.communicate()
+            check_stdout = (
+                check_stdout_bytes.decode("utf-8") if check_stdout_bytes else ""
+            )
+
+            # 检查租户是否处于running状态
+            if "running" in check_stdout.lower():
+                result += f"\n租户 {tenant_name} 已成功创建并准备就绪！"
+                return result
+            # 如果还没准备好，等待一段时间后重试
+            if i < max_retries - 1:
+                await asyncio.sleep(retry_interval)
+        # 如果达到最大重试次数仍未就绪
+        result += f"\n警告：租户 {tenant_name} 已创建，但在规定时间内未检测到running状态。请手动检查租户状态。"
+        return result
+    except Exception as e:
         return format_error(e)
 
 
@@ -266,8 +309,7 @@ def scale_tenant(
     min_iops: Optional[int] = None,
     unit_number: Optional[int] = None,
 ):
-    """扩缩租户资源
-
+    """扩缩租户资源,一次只能执行一种类型的扩展操作
     Args:
         tenant_name: 租户名称
         namespace: 命名空间（默认为"default"）
