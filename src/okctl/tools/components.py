@@ -66,12 +66,3 @@ def update_component(
         return format_error(e)
 
 
-@mcp.tool()
-def install_okctl():
-    """安装okctl"""
-    try:
-        cmd = "curl -sL https://raw.githubusercontent.com/oceanbase/ob-operator/master/scripts/install-okctl.sh | bash && ./okctl install && mv ./okctl /usr/local/bin"
-        result = subprocess.run(["sh", "-c", cmd], capture_output=True, text=True, check=True)
-        return result.stdout
-    except subprocess.CalledProcessError as e:
-        return format_error(e)
