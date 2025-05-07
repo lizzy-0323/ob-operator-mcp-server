@@ -6,13 +6,15 @@ from typing import List
 from okctl import mcp
 
 # Configure logging
-logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s")
+logging.basicConfig(
+    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+)
 logger = logging.getLogger("okctl_mcp_server")
 
 
 def load_tools(tool_names: List[str]) -> None:
     """动态加载指定的工具模块。
-    
+
     Args:
         tool_names: 要加载的工具模块名称列表
     """
@@ -26,14 +28,20 @@ def load_tools(tool_names: List[str]) -> None:
 
 def main() -> None:
     """Main entry point for the MCP server."""
-    parser = argparse.ArgumentParser(description="OceanBase cluster management tool MCP server")
-    parser.add_argument("--use-sse", action="store_true", help="Use Server-Sent Events (SSE) transport")
-    parser.add_argument("--port", type=int, default=8000, help="Port for SSE transport (default: 8000)")
+    parser = argparse.ArgumentParser(
+        description="OceanBase cluster management tool MCP server"
+    )
     parser.add_argument(
-        "--tools", 
-        type=str, 
-        default="all", 
-        help="指定要启用的工具，用逗号分隔。选项: all, clusters, tenants, backup_policy, components, sql"
+        "--use-sse", action="store_true", help="Use Server-Sent Events (SSE) transport"
+    )
+    parser.add_argument(
+        "--port", type=int, default=8000, help="Port for SSE transport (default: 8000)"
+    )
+    parser.add_argument(
+        "--tools",
+        type=str,
+        default="all",
+        help="指定要启用的工具，用逗号分隔。选项: all, clusters, tenants, backup_policy, components, sql",
     )
     args = parser.parse_args()
 

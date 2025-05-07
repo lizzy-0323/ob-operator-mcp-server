@@ -32,9 +32,9 @@ def configure_cluster_connection(
 
     Args:
         cluster_name: 集群名称
-        database: 数据库名称
+        database: 租户名称
         namespace: 命名空间，默认为default
-        user: 数据库用户名，默认为root
+        user: 数据库用户，默认为root
         password: 数据库密码，
         port: 数据库端口，默认为2881
 
@@ -44,7 +44,7 @@ def configure_cluster_connection(
     if not cluster_name:
         raise ValueError("必须指定集群名称")
     if not database:
-        raise ValueError("必须指定数据库名称")
+        raise ValueError("必须指定租户名称")
 
     try:
         # 首先确认集群存在
@@ -129,12 +129,13 @@ def execute_cluster_sql(
     namespace: str = "default",
 ) -> str:
     """
-    执行集群相关的SQL命令
+    在集群指定租户下执行SQL查询，支持各种常见SQL查询语句，如SELECT、SHOW TABLES、SHOW COLUMNS等
+
 
     Args:
         query: SQL查询语句
         cluster_name: 集群名称，如果提供则会重新配置连接
-        database: 数据库名称，如果提供则会重新配置连接
+        database: 租户名称，如果提供则会重新配置连接
         namespace: 命名空间，默认为default
 
     Returns:

@@ -10,7 +10,9 @@ from okctl import mcp
 
 @mcp.tool()
 def check_component(component_name: str):
-    """检查目前是否安装了ob-operator和okctl，一般来说，当第一次使用okctl-mcp-server的相关工具时，首先可以检查是否安装了ob-operator和okctl
+    """检查ob集群相关工具安装情况，目前支持ob-operator和okctl
+    一般来说，当第一次使用okctl-mcp-server的相关工具时
+    首先可以检查是否安装了ob-operator和okctl
 
     Args:
         component_name: 组件名称，目前支持ob-operator和okctl
