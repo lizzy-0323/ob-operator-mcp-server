@@ -55,11 +55,11 @@
 提供了配置数据库连接和在OceanBase集群上执行SQL查询的功能。
 
 - `configure_cluster_connection()` - 配置到集群的数据库连接
-  - 参数：cluster_name（集群名称）, database（数据库名称）, namespace（命名空间，默认为"default"）, user（用户名）, password（密码）, port（端口，默认为2881）
+  - 参数：cluster_name（集群名称）, tenant_name（租户名称，默认为sys）, namespace（命名空间，默认为"default"）, user（用户名）, password（密码，如果未提供，则从环境变量 OB_CLUSTER_PASSWORD 中获取集群密码）, port（端口，默认为2881）
   - 返回：数据库连接配置信息
   
 - `execute_cluster_sql()` - 在集群上执行SQL查询
-  - 参数：query（查询语句）, cluster_name（集群名称，可选）, database（数据库名称，可选）, namespace（命名空间，默认为"default"）
+  - 参数：query（查询语句）, cluster_name（集群名称，可选）, tenant_name（租户名称，默认为sys）, database（数据库名称，默认为oceanbase，也可以为业务数据库）, namespace（命名空间，默认为"default"）
   - 返回：查询结果
   - 支持各种SQL命令，包括SELECT、SHOW TABLES、SHOW COLUMNS、DESCRIBE和DML语句
 
@@ -89,7 +89,7 @@
       "command": "uv",
       "args": ["--directory", "/path/to/okctl-mcp-server", "run", "src/okctl/server.py"],
       "env": {
-        // 如果想要用系统租户访问集群，默认访问root@sys, 需要配置以下参数
+        // 如果想要用系统租户连接集群，默认访问root@sys, 需要配置以下参数
         "OB_CLUSTER_PASSWORD": "<password of cluster>"
       }
     }
@@ -118,6 +118,7 @@
 - 所有函数都是通过调用底层的 okctl 命令行工具来实现的，因此需要确保 okctl 已正确安装并配置
 - 大多数函数都提供了 namespace 参数，默认值为 "default"，可以根据需要指定不同的命名空间
 - 部分操作（如删除集群、删除租户等）可能是不可逆的，请谨慎操作
+- 目前在执行SQL语句时，需要提供较为精确的prompt，否则可能会返回错误
 - 建议在执行重要操作前先进行备份
 
 ## 贡献

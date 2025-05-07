@@ -119,13 +119,21 @@ def configure_cluster_connection(
             f"获取到集群IP地址: {ip_address}，来自POD: {pod_data[0]['pod_name']}，可用区: {target_zone}"
         )
 
-        # 配置数据库连接, 如果没有提供用户和密码, 则从环境变量中获取
+        # 如果没有提供密码, 则从环境变量中获取集群密码
+        if not password:
+            password = os.getenv("OB_CLUSTER_PASSWORD")
+            if not password:
+                raise ValueError("未提供密码，且未设置环境变量 OB_CLUSTER_PASSWORD")
+            else:
+                logger.info("使用环境变量 OB_CLUSTER_PASSWORD 作为密码")
+
+        # 配置数据库连接
         global global_config
         global_config = {
             "host": ip_address,
             "port": port,
             "user": f"{user}@{tenant_name}",
-            "password": password or os.getenv("OB_CLUSTER_PASSWORD"),
+            "password": password,
         }
 
         logger.info(
