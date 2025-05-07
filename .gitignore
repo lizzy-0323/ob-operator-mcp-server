@@ -11,3 +11,7 @@ wheels/
 
 # Virtual environments
 .venv
+
+# Ignore for MacOS
+.DS_Store
+

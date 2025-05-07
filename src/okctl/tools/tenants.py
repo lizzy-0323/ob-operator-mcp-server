@@ -87,6 +87,8 @@ async def create_tenant(
         unit_number: 租户的单位数量（默认为1）
         unlimited: 是否不限制时间，默认为True
         until_timestamp: 租户的截止时间
+    Important:
+        1. 该操作可能需要几分钟时间
     """
     if not cluster:
         return "必须指定集群名称"
@@ -360,6 +362,8 @@ def show_tenant(tenant_name: str, namespace: str = "default"):
     Args:
         tenant_name: 租户名称
         namespace: 命名空间（默认为"default"）
+    Important:
+        1. 注意不要在短时间内重复调用该命令
     """
     if not tenant_name:
         return "必须指定租户名称"

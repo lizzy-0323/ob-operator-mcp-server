@@ -12,7 +12,7 @@ from okctl import mcp
 logging.basicConfig(
     level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
-logger = logging.getLogger("oceanbase_mcp_server")
+logger = logging.getLogger("okctl_mcp_server")
 
 # 全局配置
 global_config = None
@@ -21,23 +21,23 @@ global_config = None
 @mcp.tool()
 def configure_cluster_connection(
     cluster_name: str,
-    database: str,
+    tenant_name: str = "sys",
     namespace: str = "default",
-    user: str = None,
-    password: str = None,
+    user: str = "root",
+    password: Optional[str] = None,
     port: int = 2881,
-    zone: str = None,
+    zone: Optional[str] = None,
 ) -> Dict[str, Any]:
     """
     配置集群查询相关的连接
 
     Args:
         cluster_name: 集群名称
-        database: 数据库名称
+        tenant_name: 租户名称，默认为sys
         namespace: 命名空间，默认为default
-        user: 数据库用户名，默认为root
-        password: 数据库密码，
-        port: 数据库端口，默认为2881
+        user: 用户，默认为root
+        password: 租户密码，如果未提供则从环境变量中获取集群密码
+        port: 端口，默认为2881
         zone: 指定要连接的可用区，如果不指定则使用第一个可用的zone
 
     Returns:
@@ -45,8 +45,6 @@ def configure_cluster_connection(
     """
     if not cluster_name:
         raise ValueError("必须指定集群名称")
-    if not database:
-        raise ValueError("必须指定数据库名称")
 
     try:
         # 首先确认集群存在
@@ -126,13 +124,12 @@ def configure_cluster_connection(
         global_config = {
             "host": ip_address,
             "port": port,
-            "user": user or os.getenv("OB_CLUSTER_USER"),
+            "user": f"{user}@{tenant_name}",
             "password": password or os.getenv("OB_CLUSTER_PASSWORD"),
-            "database": database,
         }
 
         logger.info(
-            f"数据库连接配置成功: host={ip_address}, port={port}, user={user}, database={database}"
+            f"数据库连接配置成功: host={ip_address}, port={port}, user={user}, tenant_name={tenant_name}"
         )
 
         return global_config
@@ -142,23 +139,28 @@ def configure_cluster_connection(
         raise ValueError(f"获取集群IP地址失败: {error_msg}")
     except Exception as e:
         logger.error(f"配置数据库连接时发生错误: {str(e)}")
-        raise ValueError(f"配置数据库连接时发生错误: {str(e)}")
+        raise ValueError(
+            f"配置数据库连接时发生错误: {str(e)}, 目前连接配置为: {global_config}"
+        )
 
 
 @mcp.tool()
 def execute_cluster_sql(
     query: str,
     cluster_name: str = None,
-    database: str = None,
+    tenant_name: str = None,
+    database: str = "oceanbase",
     namespace: str = "default",
 ) -> str:
     """
-    执行集群相关的SQL命令
+    在集群指定租户下执行SQL查询，支持各种常见SQL查询语句，如SELECT、SHOW TABLES、SHOW COLUMNS等
+
 
     Args:
         query: SQL查询语句
         cluster_name: 集群名称，如果提供则会重新配置连接
-        database: 数据库名称，如果提供则会重新配置连接
+        tenant_name: 租户名称，如果提供则会重新配置连接
+        database: 数据库名称，默认为oceanbase，也可以为业务数据库
         namespace: 命名空间，默认为default
 
     Returns:
@@ -166,12 +168,12 @@ def execute_cluster_sql(
     """
     global global_config
 
-    # 如果提供了集群名称和数据库名称，则重新配置连接
-    if cluster_name and database:
+    # 如果提供了集群名称和租户名称，则重新配置连接
+    if cluster_name and tenant_name:
         try:
-            configure_cluster_connection(cluster_name, database, namespace)
+            configure_cluster_connection(cluster_name, tenant_name, namespace)
         except ValueError as e:
-            return f"配置数据库连接失败: {str(e)}"
+            return f"配置数据库连接失败: {str(e)}, 目前连接配置为: {global_config}"
 
     # 检查是否已配置连接
     if not global_config:
@@ -180,14 +182,15 @@ def execute_cluster_sql(
     logger.info(f"执行SQL查询: {query}")
 
     try:
-        with connect(**global_config) as conn:
+        with connect(**global_config, database=database) as conn:
             with conn.cursor() as cursor:
+                # 执行SQL查询
                 cursor.execute(query)
 
                 # 特殊处理SHOW TABLES
                 if query.strip().upper().startswith("SHOW TABLES"):
                     tables = cursor.fetchall()
-                    result = [f"{global_config['database']}数据库中的表: "]  # 标题
+                    result = [f"{global_config['tenant_name']}租户中的表: "]  # 标题
                     result.extend([table[0] for table in tables])
                     return "\n".join(result)
 
@@ -219,7 +222,9 @@ def execute_cluster_sql(
 
     except Error as e:
         logger.error(f"执行SQL '{query}'时出错: {e}")
-        return f"执行查询时出错: {str(e)}"
+        return f"执行查询时出错: {str(e)}，SQL语句为: {query}"
     except Exception as e:
-        logger.error(f"执行查询时发生未知错误: {str(e)}")
-        return f"执行查询时发生未知错误: {str(e)}"
+        logger.error(
+            f"执行查询时发生未知错误: {str(e)}，目前连接配置为: {global_config}，SQL语句为: {query}"
+        )
+        return f"执行查询时发生未知错误: {str(e)}, 目前连接配置为: {global_config}，SQL语句为: {query}"

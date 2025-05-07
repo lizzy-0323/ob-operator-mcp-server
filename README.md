@@ -88,8 +88,8 @@ Provides functionality for installing, updating, and managing OceanBase componen
       "command": "uv",
       "args": ["--directory", "/path/to/okctl-mcp-server", "run", "src/okctl/server.py"],
       "env": {
-        "OB_CLUSTER_USER": USER,
-        "OB_CLUSTER_PASSWORD": PASSWORD
+        // you need to set these environment variables if you want to connect to cluster by root@sys
+        "OB_CLUSTER_PASSWORD": "<password of cluster>"
       }
     }
   }

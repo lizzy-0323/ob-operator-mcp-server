@@ -37,6 +37,8 @@ def show_cluster(cluster_name: str, namespace: str = "default"):
     Args:
         cluster_name: 要显示的集群名称
         namespace: 集群所在的命名空间（默认为"default"）
+    Important:
+        1. 不要在短时间内重复调用该命令
     """
     if not cluster_name:
         return "必须指定集群名称"
@@ -58,6 +60,8 @@ def scale_cluster(cluster_name: str, zones: str, namespace: str = "default"):
         cluster_name: 要扩缩的集群名称
         zones: 集群的可用区，例如 'z1=1'，设置副本数为0以删除可用区,每次只能修改一个可用区
         namespace: 集群所在的命名空间（默认为"default"）
+    Important:
+        1. 该操作可能需要几分钟时间
     """
     if not cluster_name or not zones:
         return "必须指定集群名称和可用区"
@@ -97,6 +101,8 @@ def update_cluster(
         log_storage_size: 日志存储的大小（默认为20）
         redo_log_storage_class: 重做日志存储的存储类
         redo_log_storage_size: 重做日志存储的大小（默认为50）
+    Important:
+        1. 该操作可能需要几分钟时间
     """
     if not cluster_name:
         return "必须指定集群名称"
@@ -137,6 +143,8 @@ def upgrade_cluster(cluster_name: str, image: str, namespace: str = "default"):
         cluster_name: 要升级的集群名称
         image: 观察者的镜像
         namespace: 集群所在的命名空间（默认为"default"）
+    Important:
+        1. 该操作可能需要几分钟时间
     """
     if not cluster_name or not image:
         return "必须指定集群名称和镜像"
@@ -212,6 +220,8 @@ async def create_cluster(
         redo_log_storage_size: 重做日志存储的大小（默认为50）
         root_password: 集群的root密码
         zones: 集群的可用区，例如'--zones=<zone>=<replica>'（默认为[z1=1]）
+    Important:
+        1. 该操作可能需要几分钟时间
     """
     if not cluster_name:
         return "必须指定集群名称"

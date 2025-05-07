@@ -89,8 +89,8 @@
       "command": "uv",
       "args": ["--directory", "/path/to/okctl-mcp-server", "run", "src/okctl/server.py"],
       "env": {
-        "OB_CLUSTER_USER": USER,
-        "OB_CLUSTER_PASSWORD": PASSWORD
+        // 如果想要用系统租户访问集群，默认访问root@sys, 需要配置以下参数
+        "OB_CLUSTER_PASSWORD": "<password of cluster>"
       }
     }
   }
