@@ -124,11 +124,7 @@ def configure_cluster_connection(
         global_config = {
             "host": ip_address,
             "port": port,
-            "user": (
-                f"{user}@{tenant_name}"
-                if user and tenant_name
-                else f"{os.getenv('OB_CLUSTER_USER', 'root')}@sys"
-            ),
+            "user": f"{user}@{tenant_name}",
             "password": password or os.getenv("OB_CLUSTER_PASSWORD"),
         }
 
