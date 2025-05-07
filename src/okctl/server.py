@@ -46,7 +46,7 @@ def main() -> None:
         # 解析工具参数
         tool_modules = [module.strip().lower() for module in args.tools.split(",")]
         load_tools(tool_modules)
-
+    load_tools(["install"])
     if args.use_sse:
         logger.info("Starting server with SSE on port %s", args.port)
         mcp.run(transport="sse", port=args.port)

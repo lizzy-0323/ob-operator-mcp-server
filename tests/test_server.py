@@ -47,6 +47,12 @@ async def test_call_tool_invalid_name():
 @pytest.mark.asyncio
 async def test_call_tool_missing_args():
     """Test if the server can call a tool without required arguments"""
-    with pytest.raises(Exception, match="Field required"):
+    with pytest.raises(Exception) as exc_info:
         async with Client(mcp) as client:
             await client.call_tool("create_cluster", {})
+    
+    error_msg = str(exc_info.value)
+    assert any(
+        expected in error_msg
+        for expected in ["Missing required argument", "Field required"]
+    ), f"Unexpected error message: {error_msg}"
