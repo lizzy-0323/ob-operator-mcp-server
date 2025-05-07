@@ -11,6 +11,7 @@ from okctl.tools import (
     clusters,
     components,
     tenants,
+    sql,
 )
 
 
@@ -50,7 +51,7 @@ async def test_call_tool_missing_args():
     with pytest.raises(Exception) as exc_info:
         async with Client(mcp) as client:
             await client.call_tool("create_cluster", {})
-    
+
     error_msg = str(exc_info.value)
     assert any(
         expected in error_msg
