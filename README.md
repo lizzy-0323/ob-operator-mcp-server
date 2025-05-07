@@ -55,10 +55,10 @@ Provides functionality for creating, deleting, viewing, updating, and managing O
 Provides functionality for configuring database connections and executing SQL queries on OceanBase clusters.
 
 - `configure_cluster_connection()` - Configure database connection to a cluster
-  - Parameters: cluster_name, database, namespace (default: "default"), user, password, port (default: 2881)
+  - Parameters: cluster_name, tenant_name (default: "sys"), namespace (default: "default"), user, password (if not provided, will use environment variable OB_CLUSTER_PASSWORD), port (default: 2881)
   - Returns: Database connection configuration information
 - `execute_cluster_sql()` - Execute SQL queries on a cluster
-  - Parameters: query, cluster_name (optional), database (optional), namespace (default: "default")
+  - Parameters: query, cluster_name (optional), tenant_name (default: "sys"), database (default: "oceanbase"), namespace (default: "default")
   - Returns: Query results
   - Supports various SQL commands including SELECT, SHOW TABLES, SHOW COLUMNS, DESCRIBE, and DML statements
 
@@ -118,6 +118,7 @@ Provides functionality for installing, updating, and managing OceanBase componen
 - All functions are implemented by calling the underlying okctl command-line tool, so ensure okctl is properly installed and configured
 - Most functions provide a namespace parameter with a default value of "default", which can be specified as needed
 - Some operations (such as deleting clusters, deleting tenants) may be irreversible, please proceed with caution
+- When executing SQL queries, it is recommended to provide a more precise prompt, otherwise it may return an error
 - It is recommended to perform backups before executing important operations
 
 ## Contributing
