@@ -9,39 +9,6 @@ from okctl import mcp
 
 
 @mcp.tool()
-def check_component(component_name: str):
-    """检查ob集群相关工具安装情况，目前支持ob-operator和okctl
-    一般来说，当第一次使用okctl-mcp-server的相关工具时
-    首先可以检查是否安装了ob-operator和okctl
-
-    Args:
-        component_name: 组件名称，目前支持ob-operator和okctl
-    """
-    try:
-        if not component_name:
-            return "必须指定组件名称"
-        if component_name not in [
-            "ob-operator",
-            "okctl",
-        ]:
-            return f"不支持检查{component_name}组件"
-        if component_name == "ob-operator":
-            cmd = "kubectl get pods -n oceanbase-system"
-            result = subprocess.run(
-                ["sh", "-c", cmd], capture_output=True, text=True, check=True
-            )
-            return result.stdout
-        if component_name == "okctl":
-            cmd = "okctl version"
-            result = subprocess.run(
-                ["sh", "-c", cmd], capture_output=True, text=True, check=True
-            )
-            return result.stdout
-    except subprocess.CalledProcessError as e:
-        return format_error(e)
-
-
-@mcp.tool()
 def install_component(
     component_name: Optional[str] = None,
     version: Optional[str] = None,
@@ -95,19 +62,6 @@ def update_component(
     try:
         cmd = f"okctl update {component_name}"
 
-        result = subprocess.run(
-            ["sh", "-c", cmd], capture_output=True, text=True, check=True
-        )
-        return result.stdout
-    except subprocess.CalledProcessError as e:
-        return format_error(e)
-
-
-@mcp.tool()
-def install_okctl():
-    """安装okctl"""
-    try:
-        cmd = "curl -sL https://raw.githubusercontent.com/oceanbase/ob-operator/master/scripts/install-okctl.sh | bash && ./okctl install && mv ./okctl /usr/local/bin"
         result = subprocess.run(
             ["sh", "-c", cmd], capture_output=True, text=True, check=True
         )

@@ -101,13 +101,13 @@
 
 - `--tools`: 指定要启用的工具，用逗号分隔。选项：
   - `all`: 启用所有工具（默认）
-  - `cluster`: 仅启用集群管理工具
-  - `tenant`: 仅启用租户管理工具
-  - `backup`: 仅启用备份策略管理工具
-  - `component`: 仅启用组件管理工具
+  - `clusters`: 仅启用集群管理工具
+  - `tenants`: 仅启用租户管理工具
+  - `backup_policy`: 仅启用备份策略管理工具
+  - `components`: 仅启用组件管理工具
   - `sql`: 仅启用SQL操作工具
   
-  示例：`--tools=cluster,tenant,sql`
+  示例：`--tools=clusters,tenants,sql`
 
 - `--use_sse`: 使用服务器发送事件（SSE）传输而不是标准输入输出
 - `--port`: 指定SSE传输的端口（默认：8000）

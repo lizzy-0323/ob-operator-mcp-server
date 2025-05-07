@@ -3,7 +3,7 @@ import os
 import logging
 from typing import Optional, Dict, Any
 from mysql.connector import connect, Error
-from okctl.utils import format_error
+from okctl.utils.errors import format_error
 
 # 导入mcp实例
 from okctl import mcp
@@ -26,6 +26,7 @@ def configure_cluster_connection(
     user: str = None,
     password: str = None,
     port: int = 2881,
+    zone: str = None,
 ) -> Dict[str, Any]:
     """
     配置集群查询相关的连接
@@ -37,6 +38,7 @@ def configure_cluster_connection(
         user: 数据库用户，默认为root
         password: 数据库密码，
         port: 数据库端口，默认为2881
+        zone: 指定要连接的可用区，如果不指定则使用第一个可用的zone
 
     Returns:
         数据库连接配置信息
@@ -57,14 +59,35 @@ def configure_cluster_connection(
 
         # 从集群信息中提取 zone 名称
         zones = []
+        in_zone_section = False
         for line in result_check.stdout.split("\n"):
-            if line.strip() and "zone" in line.lower() and "running" in line.lower():
+            line = line.strip()
+            if not line:
+                continue
+
+            # 检测是否进入ZONE部分
+            if line.startswith("ZONE"):
+                in_zone_section = True
+                continue
+            # 检测是否离开ZONE部分（遇到下一个标题部分）
+            elif line and line.startswith("KEY") and "ZONE" not in line:
+                in_zone_section = False
+                continue
+
+            # 在ZONE部分中解析可用区信息
+            if in_zone_section and "running" in line.lower():
                 parts = line.split()
                 if len(parts) >= 2:
                     zones.append(parts[0].strip())
 
         if not zones:
             raise ValueError(f"未找到集群 {cluster_name} 的可用区信息")
+
+        # 如果指定了zone，验证其是否存在
+        if zone and zone not in zones:
+            raise ValueError(
+                f"指定的可用区 {zone} 不存在于集群 {cluster_name} 中。可用的区域: {', '.join(zones)}"
+            )
 
         # 使用 kubectl 命令获取所有 pod 信息
         cmd = f"kubectl get pods -o wide"
@@ -75,26 +98,27 @@ def configure_cluster_connection(
         if not result.stdout.strip():
             raise ValueError(f"未找到任何 POD 信息")
 
-        # 解析 POD 信息，仅筛选与集群 zone 相关的 pod
+        # 解析 POD 信息，根据指定的zone筛选pod
         pod_info = result.stdout.strip().split("\n")
         pod_data = []
 
+        target_zone = zone if zone else zones[0]
         for line in pod_info[1:]:  # 跳过标题行
             parts = line.split()
             if len(parts) >= 6:  # 确保有足够的列
                 pod_name = parts[0]
-                # 检查 pod 名称是否与任何 zone 匹配
-                if any(zone in pod_name for zone in zones):
+                # 检查 pod 名称是否与目标 zone 匹配
+                if target_zone in pod_name:
                     pod_ip = parts[5]
                     pod_data.append({"pod_name": pod_name, "pod_ip": pod_ip})
 
         if not pod_data:
-            raise ValueError(f"未找到与集群 {cluster_name} 的 zone 相关的 POD 信息")
+            raise ValueError(f"未找到与可用区 {target_zone} 相关的 POD 信息")
 
         # 获取第一个 pod 的 IP 地址
         ip_address = pod_data[0]["pod_ip"]
         logger.info(
-            f"获取到集群IP地址: {ip_address}，来自POD: {pod_data[0]['pod_name']}"
+            f"获取到集群IP地址: {ip_address}，来自POD: {pod_data[0]['pod_name']}，可用区: {target_zone}"
         )
 
         # 配置数据库连接, 如果没有提供用户和密码, 则从环境变量中获取
